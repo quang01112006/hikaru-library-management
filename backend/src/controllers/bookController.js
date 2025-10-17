@@ -1,5 +1,5 @@
 export const getAllBooks = (req, res)=>{
-    res.status(200).json(books);
+    res.status(200).send("đây là danh sách của mày");
 }
 
 export const getBookById = (req, res)=>{

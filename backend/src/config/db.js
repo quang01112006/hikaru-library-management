@@ -2,11 +2,10 @@ import mongoose from "mongoose";
 
 export const connectDB = async () => {
   try {
-    await mongoose.connect(
-      "mongodb+srv://hikaru:hi@cluster0.pccsc9r.mongodb.net/dev?retryWrites=true&w=majority&appName=Cluster0"
-    );
+    await mongoose.connect(process.env.MONGODB_CONNECTIONSTRING);
     console.log("liên kết db thành công");
   } catch (error) {
-    console.error("LỖI KHI KẾT NỐI DB");
+    console.error("lỗi khi kết nối db: ", error);
+    process.exit(1); //exit with error
   }
 };
