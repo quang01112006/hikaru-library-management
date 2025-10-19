@@ -35,6 +35,11 @@ const bookSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    source: {
+      type: String,
+      enum: ["manual", "api"],
+      default: "manual",
+    },
   },
   {
     timestamps: true,
