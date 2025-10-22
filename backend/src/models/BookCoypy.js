@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const bookCopySchema = new mongoose.Schema(
   {
     book: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.ObjectId,
       ref: "Book",
       required: true,
     },
