@@ -30,7 +30,7 @@ export const addBook = async (req, res) => {
     res.status(201).json(newBook);
   } catch (error) {
     console.log("Lỗi khi gọi addBook:", error.message);
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -40,12 +40,12 @@ export const updateBookInfo = async (req, res) => {
       new: true,
     });
     if (!updatedBook) {
-      return res.status(404).json({ message: "Không tìm thấy sách" });
+      return res.status(404).json({ message: "Sách không tồn tại" });
     }
     res.status(200).json(updatedBook);
   } catch (error) {
     console.log("Lỗi khi gọi updateBookInfo:", error.message);
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: "Lỗi hệ thống" });
   }
 };
 
@@ -55,7 +55,7 @@ export const deleteBook = async (req, res) => {
     if (!deletedBook) {
       return res.status(404).json({ message: "Không tìm thấy sách" });
     }
-    res.status(200).json({ message: "Đã xóa sách thành công" });
+    res.status(200).json(deletedBook);
   } catch (error) {
     console.log("Lỗi khi gọi deleteBook:", error.message);
     res.status(500).json({ message: "Lỗi hệ thống" });
