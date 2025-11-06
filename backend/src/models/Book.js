@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+const Schema = mongoose.Schema;
 
-const bookSchema = new mongoose.Schema(
+const bookSchema = new Schema(
   {
     bookCode: {
       type: String,
@@ -17,33 +18,42 @@ const bookSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+
     genre: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "Category",
       required: true,
     },
-    year: Number,
-    price: Number,
-    desc: {
-      type: String,
-      trim: true,
-    },
+
     quantity: {
       type: Number,
       default: 0,
+      required: true,
     },
+
     availableQuantity: {
       type: Number,
       default: 0,
+      required: true,
     },
-    source: {
-      type: String,
-      enum: ["manual", "api"],
-      default: "manual",
+
+    isHidden: {
+      type: Boolean,
+      default: false,
     },
   },
   {
     timestamps: true,
   }
 );
+
+// Khi tạo sách mới, số lượng còn lại = tổng số
+bookSchema.pre("save", function (next) {
+  if (this.isNew) {
+    this.availableQuantity = this.quantity;
+  }
+  next();
+});
+
 const Book = mongoose.model("Book", bookSchema);
 export default Book;

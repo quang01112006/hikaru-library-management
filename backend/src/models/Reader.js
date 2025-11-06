@@ -12,20 +12,15 @@ const readerSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  dob: Date,
-  address: {
-    type: String,
-    trim: true,
-  },
   phone: {
     type: String,
     trim: true,
   },
-  barcode: {
+  email: {
     type: String,
     trim: true,
-    unique: true,
   },
+
   quota: {
     type: Number,
     default: 5,

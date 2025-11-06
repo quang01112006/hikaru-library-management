@@ -1,40 +1,38 @@
 import mongoose from "mongoose";
+const Schema = mongoose.Schema;
 
-const borrowRecordSchema = new mongoose.Schema(
+const borrowRecordSchema = new Schema(
   {
     reader: {
-      type: mongoose.Schema.ObjectId,
-      required: true,
+      type: Schema.Types.ObjectId,
       ref: "Reader",
+      required: true,
     },
-    borrowCopies: [
-      {
-        type: mongoose.Schema.ObjectId,
-        required: true,
-        ref: "BookCopy",
-      },
-    ],
-    returnCopies: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "BookCopy",
-      },
-    ],
+
+    book: {
+      type: Schema.Types.ObjectId,
+      ref: "Book",
+      required: true,
+    },
+
     borrowDate: {
       type: Date,
       default: Date.now,
     },
+
     dueDate: {
       type: Date,
       required: true,
     },
+
+    isReturned: {
+      type: Boolean,
+      default: false,
+    },
+
     returnDate: {
       type: Date,
-    },
-    status: {
-      type: String,
-      enum: ["returned", "borrowed", "overdue"],
-      default: "borrowed",
+      default: null,
     },
   },
   { timestamps: true }
