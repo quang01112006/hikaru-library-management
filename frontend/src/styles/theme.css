@@ -19,9 +19,9 @@
   --main-gradient-color: linear-gradient(to right, var(--p-300), var(--p-500));
   --gradient-color: linear-gradient(var(--n-100) 10%, var(--p-100));
 
-  /*================================= 
-        FONTS -  Sử dụng Scale 1.125
-    =================================*/
+  /*===============================
+          font - scale 1.125
+    ===============================*/
 
   /* ====== H1 ====== */
   --h1-font-size: 2rem; /* 32px */
