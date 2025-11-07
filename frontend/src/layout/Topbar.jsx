@@ -1,7 +1,7 @@
 import "./Topbar.css";
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import useLogout from "../utils/logout";
+import useLogout from "../hooks/useLogout";
 import { FaBell, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 export default function Topbar() {

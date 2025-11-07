@@ -1,5 +1,5 @@
 import "./Sidebar.css";
-import useLogout from "../utils/logout";
+import useLogout from "../hooks/useLogout";
 import { NavLink } from "react-router-dom";
 import {
   TbLayoutSidebarLeftCollapse,
