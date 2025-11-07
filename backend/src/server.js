@@ -14,5 +14,5 @@ app.use("/api/books", bookRoutes);
 app.use("/api/readers", readerRouter);
 
 app.listen(5001, () => {
-  console.log("server start 5001");
+  console.log("server chạy ở port 5001");
 });

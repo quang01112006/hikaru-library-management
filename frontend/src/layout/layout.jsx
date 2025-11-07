@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
+import Topbar from "./Topbar";
 import "./Layout.css";
 export default function Layout() {
   function toggleSidebar() {
@@ -11,9 +12,13 @@ export default function Layout() {
     <div className={`container ${isCollapsed ? "sidebar-collapsed" : ""}`}>
       <Sidebar isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} />
 
-      <main className="content">
-        <Outlet />
-      </main>
+      <div className="main-wrapper">
+        <Topbar />
+
+        <main className="content">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

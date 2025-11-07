@@ -95,4 +95,6 @@
 .logout-link {
   margin-top: auto;
   cursor: pointer;
+  border: none;
+  background: transparent;
 }
