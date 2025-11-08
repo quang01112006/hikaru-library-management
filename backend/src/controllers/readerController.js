@@ -58,7 +58,7 @@ export const deleteReader = async (req, res) => {
 
     const outstandingBorrows = await BorrowRecord.countDocuments({
       reader: readerId,
-      isReturned: false,
+      returnDate: null,
     });
 
     if (outstandingBorrows > 0) {
