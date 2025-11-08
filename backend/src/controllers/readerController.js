@@ -1,4 +1,5 @@
 import Reader from "../models/Reader.js";
+import BorrowRecord from "../models/BorrowRecord.js";
 
 export const getAllReaders = async (req, res) => {
   try {
@@ -53,11 +54,27 @@ export const updateReaderInfo = async (req, res) => {
 
 export const deleteReader = async (req, res) => {
   try {
-    const deletedReader = await Reader.findByIdAndDelete(req.params.id);
-    if (!deletedReader) {
-      return res.status(404).json({ message: "Bạn đọc khong tồn tại" });
+    const readerId = req.params.id;
+
+    const outstandingBorrows = await BorrowRecord.countDocuments({
+      reader: readerId,
+      isReturned: false,
+    });
+
+    if (outstandingBorrows > 0) {
+      return res.status(400).json({
+        message: `Không thể xóa. Bạn đọc này vẫn đang mượn ${outstandingBorrows} cuốn sách.`,
+      });
     }
-    res.status(200).json(deletedReader);
+
+    const deletedReader = await Reader.findByIdAndDelete(readerId);
+    if (!deletedReader) {
+      return res.status(404).json({ message: "Bạn đọc không tồn tại" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Xóa bạn đọc thành công", reader: deletedReader });
   } catch (error) {
     console.log("Lỗi khi gọi deleteReader:", error.message);
     res.status(500).json({ message: "Lỗi hệ thống" });

@@ -1,0 +1,30 @@
+.btn-primary {
+  background: var(--main-gradient-color);
+  color: white;
+  font-size: var(--p-font-size);
+  line-height: var(--p-line-height);
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: 0.2s all;
+}
+.btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.btn-secondary {
+  background: var(--n-300);
+  color: var(--n-700);
+  font-size: var(--p-font-size);
+  line-height: var(--p-line-height);
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--n-500);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: 0.2s all;
+}
+.btn-secondary:hover {
+  background: var(--n-500);
+  color: var(--n-100);
+}

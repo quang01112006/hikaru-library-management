@@ -1,0 +1,67 @@
+/*==============
+    COLORS
+================*/
+:root {
+  /*Primary colors*/
+  --p-100: hsl(212, 81%, 94%);
+  --p-300: hsl(209, 85%, 74%);
+  --p-500: hsl(208, 79%, 51%);
+  --p-700: hsl(210, 87%, 32%);
+  --p-900: hsl(211, 72%, 24%);
+
+  --n-100: hsl(210, 20%, 95%);
+  --n-300: hsl(210, 16%, 82%);
+  --n-500: hsl(210, 10%, 60%);
+  --n-700: hsl(210, 9%, 31%);
+  --n-900: hsl(210, 11%, 15%);
+
+  /* Gradients */
+  --main-gradient-color: linear-gradient(to right, var(--p-300), var(--p-500));
+  --gradient-color: linear-gradient(var(--n-100) 10%, var(--p-300));
+
+  /*===============================
+          font - scale 1.125
+    ===============================*/
+
+  /* ====== H1 ====== */
+  --h1-font-size: 2rem; /* 32px */
+  --h1-line-height: 2.25rem; /* 36px */
+
+  /* ====== H2 ====== */
+  --h2-font-size: 1.6rem; /* 26px */
+  --h2-line-height: 2rem; /* 32px */
+
+  /* ====== H3 ====== */
+  --h3-font-size: 1.266rem; /* 20px */
+  --h3-line-height: 1.5rem; /* 24px */
+
+  /* ====== H4 ====== */
+  --h4-font-size: 1.125rem; /* 18px */
+  --h4-line-height: 1.5rem; /* 24px */
+
+  /* ====== Paragraph ====== */
+  --p-font-size: 1rem; /* 16px */
+  --p-line-height: 1.5rem; /* 24px */
+  --p-letter-spacing: 0.025rem;
+
+  /* ====== Caption / Small text ====== */
+  --caption-font-size: 0.875rem; /* 14px */
+  --caption-line-height: 1rem; /* 16px */
+}
+html,
+body {
+  height: 100vh;
+  background: var(--gradient-color);
+  font-family: "Roboto", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.brand-logo,
+.login-button {
+  font-family: "Poppins", sans-serif;
+}
