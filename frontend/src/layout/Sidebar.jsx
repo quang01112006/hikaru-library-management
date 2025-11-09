@@ -17,9 +17,9 @@ import {
 const menuItems = [
   { path: "/", name: "Home", icon: <FiHome /> },
   { path: "/return-borrow", name: "Return & Borrow", icon: <FiCheckSquare /> },
-  { path: "/borrow", name: "Manage Books", icon: <FiBookOpen /> },
-  { path: "/manage/books", name: "Manage Categories", icon: <FiBook /> },
-  { path: "/manage/users", name: "Manage Customers", icon: <FiUsers /> },
+  { path: "/manage/books", name: "Manage Books", icon: <FiBookOpen /> },
+  { path: "/manage/categories", name: "Manage Categories", icon: <FiBook /> },
+  { path: "/manage/readers", name: "Manage Readers", icon: <FiUsers /> },
   // { path: "/stats/users", name: "Thống kê người mượn", icon: <FiUsers /> },
   { path: "/stats", name: "Statistics", icon: <FiPieChart /> },
 ];
