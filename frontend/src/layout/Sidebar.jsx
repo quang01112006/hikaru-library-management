@@ -16,12 +16,12 @@ import {
 } from "react-icons/fi";
 const menuItems = [
   { path: "/", name: "Home", icon: <FiHome /> },
-  { path: "/borrow", name: "Borrow Books", icon: <FiBookOpen /> },
-  { path: "/return", name: "Return & Payment", icon: <FiCheckSquare /> },
-  { path: "/manage/books", name: "Manage Books", icon: <FiBook /> },
-  { path: "/manage/users", name: "Manage Customers", icon: <FiUsers /> },
-  //   { path: "/stats/users", name: "Thống kê người mượn", icon: <FiUsers /> },
-  //   { path: "/stats/books", name: "Thống kê sách", icon: <FiPieChart /> },
+  { path: "/return-borrow", name: "Return & Borrow", icon: <FiCheckSquare /> },
+  { path: "/manage/books", name: "Manage Books", icon: <FiBookOpen /> },
+  { path: "/manage/categories", name: "Manage Categories", icon: <FiBook /> },
+  { path: "/manage/readers", name: "Manage Readers", icon: <FiUsers /> },
+  // { path: "/stats/users", name: "Thống kê người mượn", icon: <FiUsers /> },
+  { path: "/stats", name: "Statistics", icon: <FiPieChart /> },
 ];
 export default function Sidebar({ isCollapsed, toggleSidebar }) {
   const handleLogout = useLogout();
