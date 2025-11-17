@@ -1,16 +1,15 @@
 import mongoose from "mongoose";
-const Schema = mongoose.Schema;
 
-const borrowRecordSchema = new Schema(
+const borrowRecordSchema = new mongoose.Schema(
   {
     reader: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Reader",
       required: true,
     },
 
     book: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Book",
       required: true,
     },
@@ -23,11 +22,6 @@ const borrowRecordSchema = new Schema(
     dueDate: {
       type: Date,
       required: true,
-    },
-
-    isReturned: {
-      type: Boolean,
-      default: false,
     },
 
     returnDate: {

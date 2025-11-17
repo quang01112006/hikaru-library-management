@@ -32,7 +32,7 @@ export const updateCategory = async (req, res) => {
     const updatedCategory = await Category.findByIdAndUpdate(
       req.params.id,
       { name, description },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true } // trả về bản ghi sau khi update, check ràng buộc
     );
     if (!updatedCategory) {
       return res.status(404).json({ message: "Thể loại không tồn tại" });
@@ -50,6 +50,11 @@ export const updateCategory = async (req, res) => {
 export const deleteCategory = async (req, res) => {
   try {
     const categoryId = req.params.id;
+    const deletedCategory = await Category.findByIdAndDelete(categoryId);
+    if (!deletedCategory) {
+      return res.status(404).json({ message: "Thể loại không tồn tại" });
+    }
+    
     const bookCount = await Book.countDocuments({ genre: categoryId });
     if (bookCount > 0) {
       return res.status(400).json({
@@ -57,10 +62,6 @@ export const deleteCategory = async (req, res) => {
       });
     }
 
-    const deletedCategory = await Category.findByIdAndDelete(categoryId);
-    if (!deletedCategory) {
-      return res.status(404).json({ message: "Thể loại không tồn tại" });
-    }
     res.status(200).json({ message: "Xóa thể loại thành công" });
   } catch (error) {
     console.log("Lỗi khi gọi deleteCategory: ", error.message);
