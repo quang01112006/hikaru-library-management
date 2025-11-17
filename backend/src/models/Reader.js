@@ -16,6 +16,7 @@ const readerSchema = new mongoose.Schema(
     phone: {
       type: String,
       trim: true,
+      unique: true,
     },
     email: {
       type: String,

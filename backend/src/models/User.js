@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
-const Schema = mongoose.Schema;
+import bcrypt from "bcrypt";
 
-const userSchema = new Schema(
+const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
       required: true,
-      trim: true,
       unique: true,
       lowercase: true,
+      trim: true,
     },
     password: {
       type: String,
@@ -20,8 +20,28 @@ const userSchema = new Schema(
       default: "librarian",
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
+
+// hash trước khi lưu
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
+  try {
+    this.password = await bcrypt.hash(this.password, 10); //salt = 10
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// check xem đúng pass ko
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 const User = mongoose.model("User", userSchema);
 export default User;

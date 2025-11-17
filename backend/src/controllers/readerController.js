@@ -56,6 +56,11 @@ export const deleteReader = async (req, res) => {
   try {
     const readerId = req.params.id;
 
+    const deletedReader = await Reader.findByIdAndDelete(readerId);
+    if (!deletedReader) {
+      return res.status(404).json({ message: "Bạn đọc không tồn tại" });
+    }
+
     const outstandingBorrows = await BorrowRecord.countDocuments({
       reader: readerId,
       returnDate: null,
@@ -65,11 +70,6 @@ export const deleteReader = async (req, res) => {
       return res.status(400).json({
         message: `Không thể xóa. Bạn đọc này vẫn đang mượn ${outstandingBorrows} cuốn sách.`,
       });
-    }
-
-    const deletedReader = await Reader.findByIdAndDelete(readerId);
-    if (!deletedReader) {
-      return res.status(404).json({ message: "Bạn đọc không tồn tại" });
     }
 
     res
