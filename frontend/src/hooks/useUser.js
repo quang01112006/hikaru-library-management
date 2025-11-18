@@ -4,7 +4,7 @@ import {
   getAllUsersApi,
   addUserApi,
   deleteUserApi,
-} from "../services/authService";
+} from "../service/authService";
 
 export const useLogin = () => {
   return useMutation({

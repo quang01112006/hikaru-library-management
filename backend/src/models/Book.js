@@ -17,7 +17,11 @@ const bookSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-
+    image: {
+      type: String,
+      default:
+        "https://i.pinimg.com/736x/2a/97/38/2a9738148057ff9930c23ec6ac9bdf99.jpg",
+    },
     genre: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
