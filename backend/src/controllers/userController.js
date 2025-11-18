@@ -26,6 +26,7 @@ export const addUser = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
+    console.log("Data nhận được:", req.body);
     const { username, password } = req.body;
     if (!username || !password) {
       return res

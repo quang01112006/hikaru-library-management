@@ -1,17 +1,37 @@
 import { useState } from "react";
 import Button from "../../components/button/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaUser, FaEye, FaEyeSlash } from "react-icons/fa";
 import "./Login.css";
+import { useLogin } from "../../hooks/useUser";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Login() {
+  //ẩn hiện pass
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
-
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const { mutate: login, isError, error, isPending } = useLogin();
+  const { dispatch } = useAuth();
   const handleSubmit = (e) => {
     e.preventDefault();
+    login(
+      { username, password },
+      {
+        onSuccess: (data) => {
+          console.log("login xong", data);
+          dispatch({ type: "LOGIN_SUCCESS", payload: data });
+          navigate("/");
+        },
+        onError: (err) => {
+          console.log("Login thất bại:", err);
+        },
+      }
+    );
     console.log("Form submitted!");
   };
 
@@ -31,6 +51,8 @@ export default function Login() {
                 placeholder=" "
                 id="username"
                 name="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
               <label htmlFor="username">Username</label>
               <FaUser className="icon-user" />
@@ -43,6 +65,8 @@ export default function Login() {
                 placeholder=" "
                 id="password"
                 name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
               <label htmlFor="password">Password</label>
               <div className="icon-eye" onClick={togglePasswordVisibility}>
@@ -56,8 +80,17 @@ export default function Login() {
             <Button
               type="submit"
               className="login-button"
-              btnName="Đăng nhập"
+              // btnName="Đăng nhập"
+              btnName={isPending ? "Đang xử lý..." : "Đăng nhập"}
+              disabled={isPending}
             />
+            {isError && (
+              <p
+                style={{ color: "red", fontSize: "14px", marginBottom: "10px" }}
+              >
+                {error?.response?.data?.message || "Đăng nhập thất bại!"}
+              </p>
+            )}
           </form>
         </div>
 
