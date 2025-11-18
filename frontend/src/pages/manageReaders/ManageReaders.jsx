@@ -1,3 +1,413 @@
-export default function ManageReaders() {
-  return <>readers</>;
-}
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import './ManageReaders.css';
+
+const ManageReaders = () => {
+  const [readers, setReaders] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [readersPerPage] = useState(10);
+  const [showForm, setShowForm] = useState(false);
+  const [editingReader, setEditingReader] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    quota: 5
+  });
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Load readers từ localStorage khi component mount
+  useEffect(() => {
+    const loadReaders = () => {
+      const savedReaders = localStorage.getItem('libraryReaders');
+      if (savedReaders) {
+        try {
+          const parsedReaders = JSON.parse(savedReaders);
+          if (Array.isArray(parsedReaders)) {
+            setReaders(parsedReaders);
+          }
+        } catch (error) {
+          console.error('Error parsing readers:', error);
+          setReaders([]);
+        }
+      } else {
+        setReaders([]);
+      }
+    };
+
+    loadReaders();
+  }, []);
+
+  // Reload readers khi nhận được signal từ navigation (giống ManageBooks)
+  useEffect(() => {
+    if (location.state?.timestamp) {
+      const savedReaders = localStorage.getItem('libraryReaders');
+      if (savedReaders) {
+        try {
+          const parsedReaders = JSON.parse(savedReaders);
+          if (Array.isArray(parsedReaders)) {
+            setReaders(parsedReaders);
+          }
+        } catch (error) {
+          console.error('Error parsing readers:', error);
+          setReaders([]);
+        }
+      }
+      // Clear state để không reload liên tục
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
+
+  // Tạo ID mới duy nhất
+  const generateNewId = () => {
+    const existingIds = readers.map(reader => reader.id);
+    let newId = '';
+    let counter = 1;
+    
+    do {
+      newId = `RD${String(counter).padStart(3, '0')}`;
+      counter++;
+    } while (existingIds.includes(newId));
+    
+    return newId;
+  };
+
+  // Xử lý sắp xếp
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIcon = (key) => {
+    if (sortConfig.key !== key) return '↕️';
+    return sortConfig.direction === 'asc' ? '↑' : '↓';
+  };
+
+  const sortedReaders = [...readers].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+    
+    const aValue = a[sortConfig.key];
+    const bValue = b[sortConfig.key];
+    
+    if (aValue < bValue) {
+      return sortConfig.direction === 'asc' ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return sortConfig.direction === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+
+  const filteredReaders = sortedReaders.filter(reader =>
+    reader.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    reader.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    reader.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    reader.phone.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const indexOfLastReader = currentPage * readersPerPage;
+  const indexOfFirstReader = indexOfLastReader - readersPerPage;
+  const currentReaders = filteredReaders.slice(indexOfFirstReader, indexOfLastReader);
+  const totalPages = Math.ceil(filteredReaders.length / readersPerPage);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    let updatedReaders;
+    
+    if (editingReader) {
+      // Cập nhật bạn đọc
+      updatedReaders = readers.map(reader => 
+        reader.id === editingReader.id 
+          ? { ...reader, ...formData }
+          : reader
+      );
+    } else {
+      // Thêm bạn đọc mới
+      const newReader = {
+        id: generateNewId(),
+        borrowed: 0,
+        ...formData
+      };
+      updatedReaders = [...readers, newReader];
+    }
+    
+    setReaders(updatedReaders);
+    // Lưu ngay vào localStorage
+    localStorage.setItem('libraryReaders', JSON.stringify(updatedReaders));
+    
+    handleCloseForm();
+  };
+
+  const handleEdit = (reader) => {
+    setEditingReader(reader);
+    setFormData({
+      name: reader.name,
+      email: reader.email,
+      phone: reader.phone,
+      quota: reader.quota
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = (readerId) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa bạn đọc này?')) {
+      const updatedReaders = readers.filter(reader => reader.id !== readerId);
+      setReaders(updatedReaders);
+      // Lưu ngay vào localStorage
+      localStorage.setItem('libraryReaders', JSON.stringify(updatedReaders));
+    }
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setEditingReader(null);
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      quota: 5
+    });
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  // Thêm navigation signal khi thêm/sửa (giống ManageBooks)
+  const handleAddReader = () => {
+    setShowForm(true);
+    // Thêm signal để reload khi quay lại
+    navigate(location.pathname, { state: { timestamp: Date.now() } });
+  };
+
+  return (
+    <div className="readers-page">
+      <div className="readers-header">
+        <h1>Quản Lý Bạn Đọc</h1>
+        <button
+          onClick={handleAddReader}
+          className="add-reader-btn"
+        >
+          Thêm Bạn Đọc Mới
+        </button>
+      </div>
+
+      {/* Thanh tìm kiếm */}
+      <div className="search-container">
+        <div className="search-box">
+          <input
+            type="text"
+            placeholder="Tìm kiếm theo tên, mã, email hoặc số điện thoại..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="search-input"
+          />
+          <span className="search-icon">🔍</span>
+        </div>
+        <div className="search-results">
+          Tìm thấy {filteredReaders.length} bạn đọc
+        </div>
+      </div>
+
+      {/* Bảng bạn đọc */}
+      <div className="readers-table-container">
+        <table className="readers-table">
+          <thead>
+            <tr>
+              <th onClick={() => handleSort('id')} className="sortable">
+                Mã bạn đọc {getSortIcon('id')}
+              </th>
+              <th onClick={() => handleSort('name')} className="sortable">
+                Họ tên {getSortIcon('name')}
+              </th>
+              <th onClick={() => handleSort('email')} className="sortable">
+                Email {getSortIcon('email')}
+              </th>
+              <th onClick={() => handleSort('phone')} className="sortable">
+                SĐT {getSortIcon('phone')}
+              </th>
+              <th onClick={() => handleSort('borrowed')} className="sortable quota-header">
+                Số sách đang mượn / Quota {getSortIcon('borrowed')}
+              </th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.isArray(currentReaders) && currentReaders.length > 0 ? (
+              currentReaders.map((reader) => (
+                <tr key={reader.id} className="reader-row">
+                  <td className="reader-code">{reader.id}</td>
+                  <td className="reader-name">{reader.name}</td>
+                  <td className="reader-email">{reader.email}</td>
+                  <td className="reader-phone">{reader.phone}</td>
+                  <td className="reader-quota">
+                    <div className={`quota-display ${reader.borrowed > reader.quota ? 'over-quota' : ''}`}>
+                      {reader.borrowed}/{reader.quota}
+                    </div>
+                  </td>
+                  <td className="reader-actions">
+                    <button
+                      onClick={() => handleEdit(reader)}
+                      className="edit-btn"
+                    >
+                      Sửa
+                    </button>
+                    <button
+                      onClick={() => handleDelete(reader.id)}
+                      className="delete-btn"
+                    >
+                      Xóa
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="no-readers">
+                  {readers.length === 0 ? 'Chưa có bạn đọc nào. Hãy thêm bạn đọc mới!' : 'Không tìm thấy bạn đọc phù hợp'}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Phân trang */}
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button 
+            className="pagination-btn"
+            disabled={currentPage === 1}
+            onClick={() => handlePageChange(currentPage - 1)}
+          >
+            ← Trước
+          </button>
+          
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+            <button
+              key={page}
+              className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
+              onClick={() => handlePageChange(page)}
+            >
+              {page}
+            </button>
+          ))}
+          
+          <button 
+            className="pagination-btn"
+            disabled={currentPage === totalPages}
+            onClick={() => handlePageChange(currentPage + 1)}
+          >
+            Sau →
+          </button>
+        </div>
+      )}
+
+      {/* Modal form */}
+      {showForm && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2 className="modal-title">
+              {editingReader ? 'Sửa thông tin bạn đọc' : 'Thêm bạn đọc mới'}
+            </h2>
+            
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label className="form-label">Họ tên:</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                  className="form-input"
+                  placeholder="Nhập họ tên đầy đủ"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Email:</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  className="form-input"
+                  placeholder="Nhập địa chỉ email"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Số điện thoại:</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  required
+                  className="form-input"
+                  placeholder="Nhập số điện thoại"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Quota (số sách tối đa):</label>
+                <input
+                  type="number"
+                  name="quota"
+                  value={formData.quota}
+                  onChange={handleInputChange}
+                  min="1"
+                  max="10"
+                  required
+                  className="form-input"
+                  placeholder="Nhập số sách tối đa được mượn"
+                />
+              </div>
+              
+              <div className="form-actions">
+                <button
+                  type="button"
+                  onClick={handleCloseForm}
+                  className="cancel-btn"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="submit-btn"
+                >
+                  {editingReader ? 'Cập nhật' : 'Thêm mới'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ManageReaders;
