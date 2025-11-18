@@ -50,17 +50,19 @@ export const updateCategory = async (req, res) => {
 export const deleteCategory = async (req, res) => {
   try {
     const categoryId = req.params.id;
-    const deletedCategory = await Category.findByIdAndDelete(categoryId);
-    if (!deletedCategory) {
-      return res.status(404).json({ message: "Thể loại không tồn tại" });
-    }
-    
     const bookCount = await Book.countDocuments({ genre: categoryId });
     if (bookCount > 0) {
       return res.status(400).json({
         message: `Không thể xóa, còn ${bookCount} sách thuộc thể loại này.`,
       });
     }
+    console.log("💥 Đang thử xóa Category ID:", categoryId);
+    const deletedCategory = await Category.findByIdAndDelete(categoryId);
+    if (!deletedCategory) {
+      return res.status(404).json({ message: "Thể loại không tồn tại" });
+    }
+
+    console.log("🔍 Tìm thấy số sách liên quan:", bookCount);
 
     res.status(200).json({ message: "Xóa thể loại thành công" });
   } catch (error) {
