@@ -1,0 +1,58 @@
+import mongoose from "mongoose";
+
+const bookSchema = new mongoose.Schema(
+  {
+    bookCode: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+    },
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    author: {
+      type: String,
+      trim: true,
+    },
+
+    genre: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
+
+    quantity: {
+      type: Number,
+      default: 0,
+      required: true,
+    },
+
+    availableQuantity: {
+      type: Number,
+      default: 0,
+      required: true,
+    },
+
+    isHidden: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// Khi tạo sách mới, số lượng còn lại = tổng số
+bookSchema.pre("save", function (next) {
+  if (this.isNew) {
+    this.availableQuantity = this.quantity;
+  }
+  next();
+});
+
+const Book = mongoose.model("Book", bookSchema);
+export default Book;

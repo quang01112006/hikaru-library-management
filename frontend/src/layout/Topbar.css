@@ -1,0 +1,94 @@
+.topbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--n-100);
+  padding: 1.5rem;
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--n-300);
+  height: 70px;
+}
+
+.page-title {
+  color: var(--n-900);
+  font-family: "Poppins", sans-serif;
+  font-size: var(--h2-font-size);
+  line-height: var(--h2-line-height);
+  font-weight: 600;
+}
+
+.topbar-right {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+.topbar-icon-wrapper {
+  position: relative;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: var(--n-700);
+  padding: 0.2rem;
+}
+.topbar-icon-wrapper:hover {
+  color: var(--p-500);
+}
+
+.noti-badge {
+  position: absolute;
+  top: -7px;
+  right: -10px;
+  background-color: hsl(0, 100%, 50%);
+  color: var(--n-100);
+  font-size: var(--caption-font-size);
+  line-height: var(--caption-line-height);
+  border-radius: 50%;
+  padding: 0.1rem;
+}
+
+.profile-container {
+  position: relative;
+}
+.profile-wrapper {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  font-family: "Poppins", sans-serif;
+  font-size: var(--p-font-size);
+  font-weight: 600;
+  color: var(--n-700);
+  cursor: pointer;
+}
+.profile-avt {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--n-300);
+}
+.profile-dropdown {
+  position: absolute;
+  top: 150%;
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  width: 100px;
+}
+.profile-dropdown .dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  text-decoration: none;
+  width: 100%;
+  border: none;
+  background: none;
+  gap: 0.5rem;
+  text-align: left;
+  font-family: "Roboto", sans-serif;
+  font-size: var(--caption-font-size);
+  color: var(--n-700);
+}
+.profile-dropdown .dropdown-item:hover {
+  background: var(--p-300);
+}

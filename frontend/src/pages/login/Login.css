@@ -1,0 +1,138 @@
+.login-page {
+  background: linear-gradient(var(--n-100) 10%, var(--p-300));
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-container {
+  background: var(--n-100);
+  max-width: 900px;
+  width: 80%;
+  display: flex;
+  overflow: hidden;
+  border-radius: 1rem;
+  box-shadow: 10px 10px 20px hsla(30, 11%, 15%, 0.2);
+}
+
+/* ====== cột trái =======
+===========================*/
+.login-container-left {
+  flex-basis: 55%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 50px;
+}
+.login-container-left h2 {
+  font-size: var(--h2-font-size);
+  color: var(--p-900);
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.login-container-left p {
+  color: var(--n-500);
+  margin-bottom: 30px;
+}
+
+.input-box {
+  position: relative;
+  width: 100%;
+  height: 50px;
+  margin-bottom: 30px;
+}
+.input-box input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  border-bottom: 2px solid var(--n-300);
+  font-size: var(--p-font-size);
+  color: var(--n-900);
+  transition: border-color 0.3s ease;
+  /* padding: 0 35px 0 5px; */
+}
+.input-box input:focus {
+  border-color: var(--p-500);
+}
+.input-box input[type="text"] {
+  text-transform: lowercase;
+}
+.input-box label {
+  position: absolute;
+  top: 50%;
+  left: 5px;
+  transform: translateY(-50%);
+  font-size: var(--p-font-size);
+  color: var(--n-500);
+  pointer-events: none;
+  transition: 0.3s ease all;
+}
+.input-box input:focus ~ label,
+.input-box input:valid ~ label {
+  top: -10px;
+  font-size: var(--caption-font-size);
+  color: var(--p-700);
+}
+.input-box .icon-user,
+.input-box .icon-eye {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  color: var(--n-500);
+  font-size: 1.3rem;
+}
+.input-box .icon-eye {
+  transition: color 0.2s ease;
+}
+.input-box .icon-eye:hover {
+  color: var(--p-500);
+}
+
+.login-form .forgot-password {
+  text-decoration: none;
+  display: block;
+  margin-bottom: 30px;
+  margin-top: -20px;
+  font-size: var(--caption-font-size);
+  color: var(--n-500);
+  text-align: right;
+}
+.login-form .forgot-password:hover {
+  color: var(--p-500);
+}
+
+.login-button {
+  width: 100%;
+  padding: 12px;
+  font-size: var(--p-font-size);
+  font-weight: 600;
+  background: var(--main-gradient-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--n-100);
+  transition: 0.3s ease all;
+}
+.login-button:hover {
+  background: linear-gradient(to right, var(--p-500), var(--p-700));
+}
+
+/* ============= cột phải =========
+===================================*/
+.login-container-right {
+  flex-basis: 45%;
+  background: var(--main-gradient-color);
+  color: var(--n-100);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
+}
+.brand-logo {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--n-100);
+}

@@ -1,0 +1,7 @@
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+.main-wrapper {
+  flex-grow: 1;
+}
