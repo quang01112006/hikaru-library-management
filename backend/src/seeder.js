@@ -27,6 +27,7 @@ const importData = async () => {
       const createdCategory = await Category.create({
         name: category.name,
         description: `this is desc of ${category.name}`,
+        image: `https://ui-avatars.com/api/?name=${category.name}&background=random&color=fff&size=128`,
       });
       console.log(`Đã tạo: ${category.name}`);
 

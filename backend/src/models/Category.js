@@ -8,6 +8,10 @@ const categorySchema = new mongoose.Schema(
       trim: true,
       unique: true,
     },
+    image: {
+      type: String,
+      default: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg",
+    },
     description: {
       type: String,
       trim: true,

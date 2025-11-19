@@ -3,7 +3,34 @@ import Category from "../models/Category.js";
 
 export const getAllCategories = async (req, res) => {
   try {
-    const categories = await Category.find();
+    const categories = await Category.aggregate([
+      {
+        // 1. "Nhìn sang" collection 'books'
+        $lookup: {
+          from: "books", // Tên collection sách trong DB (thường là số nhiều của Model)
+          localField: "_id", // Khớp _id của Category...
+          foreignField: "genre", // ...với trường 'genre' bên Book
+          as: "bookList", // Gán kết quả vào mảng tạm tên là 'bookList'
+        },
+      },
+      {
+        // 2. Đếm và định dạng lại
+        $project: {
+          _id: 1,
+          name: 1,
+          description: 1,
+          image: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          // Tạo trường 'count' bằng cách đếm số phần tử trong mảng 'bookList'
+          count: { $size: "$bookList" },
+        },
+      },
+      {
+        // (Tùy chọn) Sắp xếp mới nhất lên đầu
+        $sort: { createdAt: -1 },
+      },
+    ]);
     res.status(200).json(categories);
   } catch (error) {
     console.log("Lỗi khi gọi getAllCategories: ", error.message);
