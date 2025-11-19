@@ -1,4 +1,4 @@
-import './ManageBooks.css';
+import "./ManageBooks.css";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -6,7 +6,7 @@ export default function BooksPage() {
   const [books, setBooks] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const booksPerPage = 10;
   const navigate = useNavigate();
   const location = useLocation();
@@ -14,7 +14,7 @@ export default function BooksPage() {
   useEffect(() => {
     // Load books từ localStorage
     const loadBooks = () => {
-      const savedBooks = localStorage.getItem('libraryBooks');
+      const savedBooks = localStorage.getItem("libraryBooks");
       if (savedBooks) {
         try {
           const parsedBooks = JSON.parse(savedBooks);
@@ -22,7 +22,7 @@ export default function BooksPage() {
             setBooks(parsedBooks);
           }
         } catch (error) {
-          console.error('Error parsing books:', error);
+          console.error("Error parsing books:", error);
           setBooks([]);
         }
       } else {
@@ -36,7 +36,7 @@ export default function BooksPage() {
   // Reload books khi nhận được signal từ navigation
   useEffect(() => {
     if (location.state?.timestamp) {
-      const savedBooks = localStorage.getItem('libraryBooks');
+      const savedBooks = localStorage.getItem("libraryBooks");
       if (savedBooks) {
         try {
           const parsedBooks = JSON.parse(savedBooks);
@@ -44,7 +44,7 @@ export default function BooksPage() {
             setBooks(parsedBooks);
           }
         } catch (error) {
-          console.error('Error parsing books:', error);
+          console.error("Error parsing books:", error);
           setBooks([]);
         }
       }
@@ -54,25 +54,26 @@ export default function BooksPage() {
   }, [location]);
 
   // Lọc sách theo từ khóa tìm kiếm
-  const filteredBooks = books.filter(book =>
-    book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    book.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    book.category?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredBooks = books.filter(
+    (book) =>
+      book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      book.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      book.category?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Sắp xếp
   const sortedBooks = [...filteredBooks].sort((a, b) => {
     if (!sortConfig.key) return 0;
-    
+
     const aValue = a[sortConfig.key];
     const bValue = b[sortConfig.key];
-    
+
     if (aValue < bValue) {
-      return sortConfig.direction === 'asc' ? -1 : 1;
+      return sortConfig.direction === "asc" ? -1 : 1;
     }
     if (aValue > bValue) {
-      return sortConfig.direction === 'asc' ? 1 : -1;
+      return sortConfig.direction === "asc" ? 1 : -1;
     }
     return 0;
   });
@@ -85,9 +86,9 @@ export default function BooksPage() {
 
   const handleDelete = (bookId) => {
     if (window.confirm("Bạn có chắc muốn xóa sách này?")) {
-      const updatedBooks = books.filter(book => book.id !== bookId);
+      const updatedBooks = books.filter((book) => book.id !== bookId);
       setBooks(updatedBooks);
-      localStorage.setItem('libraryBooks', JSON.stringify(updatedBooks));
+      localStorage.setItem("libraryBooks", JSON.stringify(updatedBooks));
     }
   };
 
@@ -109,16 +110,16 @@ export default function BooksPage() {
   };
 
   const handleSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
   };
 
   const getSortIcon = (key) => {
-    if (sortConfig.key !== key) return '↕️';
-    return sortConfig.direction === 'asc' ? '↑' : '↓';
+    if (sortConfig.key !== key) return "↕️";
+    return sortConfig.direction === "asc" ? "↑" : "↓";
   };
 
   return (
@@ -152,34 +153,39 @@ export default function BooksPage() {
         <table className="books-table">
           <thead>
             <tr>
-              <th onClick={() => handleSort('code')} className="sortable">
-                Mã sách {getSortIcon('code')}
+              <th onClick={() => handleSort("code")} className="sortable">
+                Mã sách {getSortIcon("code")}
               </th>
-              <th onClick={() => handleSort('title')} className="sortable">
-                Tên sách {getSortIcon('title')}
+              <th onClick={() => handleSort("title")} className="sortable">
+                Tên sách {getSortIcon("title")}
               </th>
-              <th onClick={() => handleSort('author')} className="sortable">
-                Tác giả {getSortIcon('author')}
+              <th onClick={() => handleSort("author")} className="sortable">
+                Tác giả {getSortIcon("author")}
               </th>
-              <th onClick={() => handleSort('category')} className="sortable">
-                Thể loại {getSortIcon('category')}
+              <th onClick={() => handleSort("category")} className="sortable">
+                Thể loại {getSortIcon("category")}
               </th>
-              <th onClick={() => handleSort('totalQuantity')} className="sortable quantity-header">
-                Số lượng {getSortIcon('totalQuantity')}
+              <th
+                onClick={() => handleSort("totalQuantity")}
+                className="sortable quantity-header"
+              >
+                Số lượng {getSortIcon("totalQuantity")}
               </th>
               <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {currentBooks.length > 0 ? (
-              currentBooks.map(book => (
+              currentBooks.map((book) => (
                 <tr key={book.id} className="book-row">
                   <td className="book-code">{book.code}</td>
                   <td className="book-title">
                     <div>
                       <strong>{book.title}</strong>
                       {book.description && (
-                        <div className="book-description">{book.description}</div>
+                        <div className="book-description">
+                          {book.description}
+                        </div>
                       )}
                     </div>
                   </td>
@@ -191,13 +197,13 @@ export default function BooksPage() {
                     </div>
                   </td>
                   <td className="book-actions">
-                    <button 
+                    <button
                       className="edit-btn"
                       onClick={() => handleEdit(book.id)}
                     >
                       Sửa
                     </button>
-                    <button 
+                    <button
                       className="delete-btn"
                       onClick={() => handleDelete(book.id)}
                     >
@@ -209,7 +215,9 @@ export default function BooksPage() {
             ) : (
               <tr>
                 <td colSpan="6" className="no-books">
-                  {books.length === 0 ? 'Chưa có sách nào. Hãy thêm sách mới!' : 'Không tìm thấy sách phù hợp'}
+                  {books.length === 0
+                    ? "Chưa có sách nào. Hãy thêm sách mới!"
+                    : "Không tìm thấy sách phù hợp"}
                 </td>
               </tr>
             )}
@@ -220,25 +228,27 @@ export default function BooksPage() {
       {/* Phân trang */}
       {totalPages > 1 && (
         <div className="pagination">
-          <button 
+          <button
             className="pagination-btn"
             disabled={currentPage === 1}
             onClick={() => handlePageChange(currentPage - 1)}
           >
             ← Trước
           </button>
-          
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
-              className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
+              className={`pagination-btn ${
+                currentPage === page ? "active" : ""
+              }`}
               onClick={() => handlePageChange(page)}
             >
               {page}
             </button>
           ))}
-          
-          <button 
+
+          <button
             className="pagination-btn"
             disabled={currentPage === totalPages}
             onClick={() => handlePageChange(currentPage + 1)}
@@ -249,5 +259,4 @@ export default function BooksPage() {
       )}
     </div>
   );
-}
 }
