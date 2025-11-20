@@ -24,7 +24,7 @@ export const useAddBook = () => {
 export const useUpdateBook = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id, data) => updateBookApi(id, data),
+    mutationFn: ({ id, data }) => updateBookApi(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["books"] });
     },

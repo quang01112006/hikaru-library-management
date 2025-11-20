@@ -40,8 +40,8 @@ export const getAllCategories = async (req, res) => {
 
 export const addCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
-    const newCategory = new Category({ name, description });
+    const { name, description, image } = req.body;
+    const newCategory = new Category({ name, description, image });
     await newCategory.save();
     res.status(201).json(newCategory);
   } catch (error) {
@@ -55,10 +55,10 @@ export const addCategory = async (req, res) => {
 
 export const updateCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, image } = req.body;
     const updatedCategory = await Category.findByIdAndUpdate(
       req.params.id,
-      { name, description },
+      { name, description, image },
       { new: true, runValidators: true } // trả về bản ghi sau khi update, check ràng buộc
     );
     if (!updatedCategory) {

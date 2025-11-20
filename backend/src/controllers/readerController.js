@@ -26,7 +26,39 @@ export const getReaderById = async (req, res) => {
 
 export const addReader = async (req, res) => {
   try {
-    const newReader = new Reader(req.body);
+    let { readerCode, name, email, phone, quota } = req.body;
+
+    // --- LOGIC TỰ SINH MÃ Rxxx (NẾU KHÔNG NHẬP) ---
+    if (!readerCode) {
+      // 1. Tìm bạn đọc có mã lớn nhất hiện tại (Sắp xếp giảm dần theo readerCode)
+      const lastReader = await Reader.findOne().sort({ readerCode: -1 });
+
+      if (lastReader && lastReader.readerCode.startsWith("R")) {
+        // 2. Nếu tìm thấy: Cắt bỏ chữ "R", lấy phần số (Ví dụ "R005" -> 5)
+        const lastNumber = parseInt(lastReader.readerCode.slice(1));
+
+        // 3. Cộng thêm 1 và format lại thành 3 chữ số (Ví dụ 6 -> "006")
+        const nextNumber = lastNumber + 1;
+        readerCode = `R${nextNumber.toString().padStart(3, "0")}`;
+      } else {
+        // 4. Nếu kho trống (chưa có ai), hoặc mã cũ không đúng định dạng
+        // -> Khởi tạo người đầu tiên
+        readerCode = "R000";
+      }
+    }
+
+    // Validate tên
+    if (!name) {
+      return res.status(400).json({ message: "Tên bạn đọc là bắt buộc!" });
+    }
+
+    const newReader = new Reader({
+      readerCode,
+      name,
+      email,
+      phone,
+      quota: Number(quota) || 5,
+    });
     await newReader.save();
     res.status(201).json(newReader);
   } catch (error) {

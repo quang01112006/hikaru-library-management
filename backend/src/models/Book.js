@@ -50,13 +50,5 @@ const bookSchema = new mongoose.Schema(
   }
 );
 
-// Khi tạo sách mới, số lượng còn lại = tổng số
-bookSchema.pre("save", function (next) {
-  if (this.isNew) {
-    this.availableQuantity = this.quantity;
-  }
-  next();
-});
-
 const Book = mongoose.model("Book", bookSchema);
 export default Book;

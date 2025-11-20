@@ -1,6 +1,8 @@
 import axios from "axios";
 import dotenv from "dotenv";
 import Book from "./models/Book.js";
+import Reader from "./models/Reader.js";
+import BorrowRecord from "./models/BorrowRecord.js";
 import Category from "./models/Category.js";
 import { connectDB } from "./config/db.js";
 
@@ -15,11 +17,11 @@ const importData = async () => {
     console.log(" Đang bắt đầu quy trình nhập dữ liệu...");
     const categoriesList = [
       { name: "Manga", keyword: "manga" },
-      { name: "Technology", keyword: "subject:computers" },
-      { name: "Fiction", keyword: "subject:fiction" },
-      { name: "Business", keyword: "subject:business" },
-      { name: "History", keyword: "subject:history" },
-      { name: "Science", keyword: "subject:science" },
+      { name: "Công Nghệ", keyword: "subject:computers" },
+      { name: "Tiểu Thuyết", keyword: "subject:fiction" },
+      { name: "Kinh Doanh", keyword: "subject:business" },
+      { name: "Lịch Sử", keyword: "subject:history" },
+      { name: "Khoa Học", keyword: "subject:science" },
     ];
 
     let bookCounter = 1000;
@@ -47,9 +49,25 @@ const importData = async () => {
               "https://i.pinimg.com/736x/2a/97/38/2a9738148057ff9930c23ec6ac9bdf99.jpg",
             genre: createdCategory._id,
             quantity: 10,
+            availableQuantity: 10,
             isHidden: false,
           };
         });
+        await Reader.deleteMany();
+        await BorrowRecord.deleteMany();
+        const readers = [];
+        for (let i = 0; i <= 20; i++) {
+          readers.push({
+            readerCode: `R${1000 + i}`, // BD1001, BD1002...
+            name: `Bạn Đọc Số ${i}`, // Hoặc dùng faker.person.fullName()
+            email: `docgia${i}@gmail.com`,
+            phone: `090${Math.floor(Math.random() * 10000000)}`,
+            quota: 5, // Mỗi người được mượn 5 cuốn
+          });
+        }
+
+        await Reader.insertMany(readers);
+        console.log(`✅ Đã thêm ${readers.length} bạn đọc.`);
       } else {
         console.log(`Đang gọi Google Books...`);
         const googleUrl = `https://www.googleapis.com/books/v1/volumes?q=${category.keyword}&maxResults=10`;
@@ -66,6 +84,7 @@ const importData = async () => {
               "https://i.pinimg.com/736x/2a/97/38/2a9738148057ff9930c23ec6ac9bdf99.jpg",
             genre: createdCategory._id,
             quantity: 10,
+            availableQuantity: 10,
             isHidden: false,
           };
         });

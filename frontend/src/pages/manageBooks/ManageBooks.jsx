@@ -1,80 +1,61 @@
 import "./ManageBooks.css";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import {
+  useGetBook,
+  useAddBook,
+  useDeleteBook,
+  useUpdateBook,
+} from "../../hooks/useBook";
 
 export default function BooksPage() {
-  const [books, setBooks] = useState([]);
+  const { data: bookData, isLoading, isError } = useGetBook();
+  const books = bookData || []; //đề phòng lỗi server
+
+  // Gọi Hook Xóa
+  const { mutate: deleteBook } = useDeleteBook();
+
+  const handleDelete = (bookId) => {
+    if (window.confirm("Bạn có chắc muốn xóa sách này?")) {
+      // Gọi mutation, React Query tự refetch
+      deleteBook(bookId, {
+        onSuccess: () => alert("Xóa thành công!"),
+        onError: (err) => alert("Lỗi: " + err.message),
+      });
+    }
+  };
+
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
-  const booksPerPage = 10;
+  const booksPerPage = 5;
   const navigate = useNavigate();
   const location = useLocation();
-
-  useEffect(() => {
-    // Load books từ localStorage
-    const loadBooks = () => {
-      const savedBooks = localStorage.getItem("libraryBooks");
-      if (savedBooks) {
-        try {
-          const parsedBooks = JSON.parse(savedBooks);
-          if (Array.isArray(parsedBooks)) {
-            setBooks(parsedBooks);
-          }
-        } catch (error) {
-          console.error("Error parsing books:", error);
-          setBooks([]);
-        }
-      } else {
-        setBooks([]);
-      }
-    };
-
-    loadBooks();
-  }, []);
-
-  // Reload books khi nhận được signal từ navigation
-  useEffect(() => {
-    if (location.state?.timestamp) {
-      const savedBooks = localStorage.getItem("libraryBooks");
-      if (savedBooks) {
-        try {
-          const parsedBooks = JSON.parse(savedBooks);
-          if (Array.isArray(parsedBooks)) {
-            setBooks(parsedBooks);
-          }
-        } catch (error) {
-          console.error("Error parsing books:", error);
-          setBooks([]);
-        }
-      }
-      // Clear state để không reload liên tục
-      window.history.replaceState({}, document.title);
-    }
-  }, [location]);
 
   // Lọc sách theo từ khóa tìm kiếm
   const filteredBooks = books.filter(
     (book) =>
       book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      book.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      book.category?.toLowerCase().includes(searchTerm.toLowerCase())
+      book.bookCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      book.genres?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Sắp xếp
   const sortedBooks = [...filteredBooks].sort((a, b) => {
     if (!sortConfig.key) return 0;
 
-    const aValue = a[sortConfig.key];
-    const bValue = b[sortConfig.key];
+    // Map key sort từ UI sang BE
+    let key = sortConfig.key;
+    if (key === "code") key = "bookCode";
+    if (key === "totalQuantity") key = "quantity";
+    if (key === "category") key = "genre.name";
 
-    if (aValue < bValue) {
-      return sortConfig.direction === "asc" ? -1 : 1;
-    }
-    if (aValue > bValue) {
-      return sortConfig.direction === "asc" ? 1 : -1;
-    }
+    const aValue = key.includes(".") ? a.genre?.name : a[key];
+    const bValue = key.includes(".") ? b.genre?.name : b[key];
+
+    if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
     return 0;
   });
 
@@ -83,14 +64,6 @@ export default function BooksPage() {
   const indexOfFirstBook = indexOfLastBook - booksPerPage;
   const currentBooks = sortedBooks.slice(indexOfFirstBook, indexOfLastBook);
   const totalPages = Math.ceil(sortedBooks.length / booksPerPage);
-
-  const handleDelete = (bookId) => {
-    if (window.confirm("Bạn có chắc muốn xóa sách này?")) {
-      const updatedBooks = books.filter((book) => book.id !== bookId);
-      setBooks(updatedBooks);
-      localStorage.setItem("libraryBooks", JSON.stringify(updatedBooks));
-    }
-  };
 
   const handleEdit = (bookId) => {
     navigate(`/manage/books/edit/${bookId}`);
@@ -122,6 +95,9 @@ export default function BooksPage() {
     return sortConfig.direction === "asc" ? "↑" : "↓";
   };
 
+  // --- LOADING UI, đợi có component Loading , error r tính ---
+  // if (isLoading) return <div className="loading">⏳ Đang tải sách...</div>;
+  // if (isError) return <div className="error">❌ Lỗi: {error.message}</div>;
   return (
     <div className="books-page">
       <div className="books-header">
@@ -156,6 +132,7 @@ export default function BooksPage() {
               <th onClick={() => handleSort("code")} className="sortable">
                 Mã sách {getSortIcon("code")}
               </th>
+              <th>Ảnh </th>
               <th onClick={() => handleSort("title")} className="sortable">
                 Tên sách {getSortIcon("title")}
               </th>
@@ -177,8 +154,16 @@ export default function BooksPage() {
           <tbody>
             {currentBooks.length > 0 ? (
               currentBooks.map((book) => (
-                <tr key={book.id} className="book-row">
-                  <td className="book-code">{book.code}</td>
+                // sửa id thành _id vì db nó lưu _id
+                <tr key={book._id} className="book-row">
+                  <td className="book-code">{book.bookCode}</td>
+                  <td className="col-image">
+                    <img
+                      src={book.image || "https://via.placeholder.com/150"}
+                      alt={book.title}
+                      className="book-cover-thumb"
+                    />
+                  </td>
                   <td className="book-title">
                     <div>
                       <strong>{book.title}</strong>
@@ -190,22 +175,24 @@ export default function BooksPage() {
                     </div>
                   </td>
                   <td className="book-author">{book.author}</td>
-                  <td className="book-category">{book.category}</td>
+                  <td className="book-category">
+                    {book.genre?.name || "Chưa phân loại"}
+                  </td>
                   <td className="book-quantity">
                     <div className="quantity-display">
-                      {book.availableQuantity}/{book.totalQuantity}
+                      {book.availableQuantity}/{book.quantity}
                     </div>
                   </td>
                   <td className="book-actions">
                     <button
                       className="edit-btn"
-                      onClick={() => handleEdit(book.id)}
+                      onClick={() => handleEdit(book._id)}
                     >
                       Sửa
                     </button>
                     <button
                       className="delete-btn"
-                      onClick={() => handleDelete(book.id)}
+                      onClick={() => handleDelete(book._id)}
                     >
                       Xóa
                     </button>

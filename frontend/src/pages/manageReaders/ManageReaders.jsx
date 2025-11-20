@@ -1,176 +1,156 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import './ManageReaders.css';
-
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import "./ManageReaders.css";
+import {
+  useGetReaders,
+  useAddReader,
+  useDeleteReader,
+  useUpdateReader,
+} from "../../hooks/useReader";
 const ManageReaders = () => {
-  const [readers, setReaders] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  // lấy data
+  const { data: readerData, isError, isLoading } = useGetReaders();
+  const readers = readerData || [];
+
+  // Gọi các Hook Hành động
+  const { mutate: addReader } = useAddReader();
+  const { mutate: updateReader } = useUpdateReader();
+  const { mutate: deleteReader } = useDeleteReader();
+
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [readersPerPage] = useState(10);
+  const [readersPerPage] = useState(7);
   const [showForm, setShowForm] = useState(false);
   const [editingReader, setEditingReader] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    quota: 5
+    name: "",
+    email: "",
+    phone: "",
+    quota: 5,
   });
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Load readers từ localStorage khi component mount
-  useEffect(() => {
-    const loadReaders = () => {
-      const savedReaders = localStorage.getItem('libraryReaders');
-      if (savedReaders) {
-        try {
-          const parsedReaders = JSON.parse(savedReaders);
-          if (Array.isArray(parsedReaders)) {
-            setReaders(parsedReaders);
-          }
-        } catch (error) {
-          console.error('Error parsing readers:', error);
-          setReaders([]);
-        }
-      } else {
-        setReaders([]);
-      }
-    };
-
-    loadReaders();
-  }, []);
-
-  // Reload readers khi nhận được signal từ navigation (giống ManageBooks)
-  useEffect(() => {
-    if (location.state?.timestamp) {
-      const savedReaders = localStorage.getItem('libraryReaders');
-      if (savedReaders) {
-        try {
-          const parsedReaders = JSON.parse(savedReaders);
-          if (Array.isArray(parsedReaders)) {
-            setReaders(parsedReaders);
-          }
-        } catch (error) {
-          console.error('Error parsing readers:', error);
-          setReaders([]);
-        }
-      }
-      // Clear state để không reload liên tục
-      window.history.replaceState({}, document.title);
-    }
-  }, [location]);
-
   // Tạo ID mới duy nhất
   const generateNewId = () => {
-    const existingIds = readers.map(reader => reader.id);
-    let newId = '';
+    const existingIds = readers.map((reader) => reader.id);
+    let newId = "";
     let counter = 1;
-    
+
     do {
-      newId = `RD${String(counter).padStart(3, '0')}`;
+      newId = `RD${String(counter).padStart(3, "0")}`;
       counter++;
     } while (existingIds.includes(newId));
-    
+
     return newId;
   };
 
   // Xử lý sắp xếp
   const handleSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
   };
 
   const getSortIcon = (key) => {
-    if (sortConfig.key !== key) return '↕️';
-    return sortConfig.direction === 'asc' ? '↑' : '↓';
+    if (sortConfig.key !== key) return "↕️";
+    return sortConfig.direction === "asc" ? "↑" : "↓";
   };
 
   const sortedReaders = [...readers].sort((a, b) => {
     if (!sortConfig.key) return 0;
-    
+
     const aValue = a[sortConfig.key];
     const bValue = b[sortConfig.key];
-    
+
     if (aValue < bValue) {
-      return sortConfig.direction === 'asc' ? -1 : 1;
+      return sortConfig.direction === "asc" ? -1 : 1;
     }
     if (aValue > bValue) {
-      return sortConfig.direction === 'asc' ? 1 : -1;
+      return sortConfig.direction === "asc" ? 1 : -1;
     }
     return 0;
   });
 
-  const filteredReaders = sortedReaders.filter(reader =>
-    reader.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    reader.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    reader.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    reader.phone.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredReaders = sortedReaders.filter(
+    (reader) =>
+      reader.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      reader.readerCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      reader.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      reader.phone.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const indexOfLastReader = currentPage * readersPerPage;
   const indexOfFirstReader = indexOfLastReader - readersPerPage;
-  const currentReaders = filteredReaders.slice(indexOfFirstReader, indexOfLastReader);
+  const currentReaders = filteredReaders.slice(
+    indexOfFirstReader,
+    indexOfLastReader
+  );
   const totalPages = Math.ceil(filteredReaders.length / readersPerPage);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
+  // --- 3. SỬA LOGIC SUBMIT (GỌI API) ---
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    let updatedReaders;
-    
+
     if (editingReader) {
-      // Cập nhật bạn đọc
-      updatedReaders = readers.map(reader => 
-        reader.id === editingReader.id 
-          ? { ...reader, ...formData }
-          : reader
+      // GỌI UPDATE
+      updateReader(
+        {
+          id: editingReader._id, // Dùng _id của MongoDB
+          data: formData,
+        },
+        {
+          onSuccess: () => {
+            alert("Cập nhật thành công!");
+            handleCloseForm();
+          },
+          onError: (err) => alert("Lỗi: " + err.response?.data?.message),
+        }
       );
     } else {
-      // Thêm bạn đọc mới
-      const newReader = {
-        id: generateNewId(),
-        borrowed: 0,
-        ...formData
-      };
-      updatedReaders = [...readers, newReader];
+      // GỌI ADD
+      addReader(formData, {
+        onSuccess: () => {
+          alert("Thêm bạn đọc thành công!");
+          handleCloseForm();
+        },
+        onError: (err) => alert("Lỗi: " + err.response?.data?.message),
+      });
     }
-    
-    setReaders(updatedReaders);
-    // Lưu ngay vào localStorage
-    localStorage.setItem('libraryReaders', JSON.stringify(updatedReaders));
-    
-    handleCloseForm();
   };
 
+  // Sửa logic Edit: Map data vào form
   const handleEdit = (reader) => {
     setEditingReader(reader);
     setFormData({
+      readerCode: reader.readerCode,
       name: reader.name,
       email: reader.email,
       phone: reader.phone,
-      quota: reader.quota
+      quota: reader.quota,
     });
     setShowForm(true);
   };
 
+  // Sửa logic Delete: Gọi API
   const handleDelete = (readerId) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa bạn đọc này?')) {
-      const updatedReaders = readers.filter(reader => reader.id !== readerId);
-      setReaders(updatedReaders);
-      // Lưu ngay vào localStorage
-      localStorage.setItem('libraryReaders', JSON.stringify(updatedReaders));
+    if (window.confirm("Bạn có chắc chắn muốn xóa bạn đọc này?")) {
+      deleteReader(readerId, {
+        onSuccess: () => alert("Xóa thành công!"),
+        onError: (err) => alert("Lỗi: " + err.response?.data?.message),
+      });
     }
   };
 
@@ -178,10 +158,10 @@ const ManageReaders = () => {
     setShowForm(false);
     setEditingReader(null);
     setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      quota: 5
+      name: "",
+      email: "",
+      phone: "",
+      quota: 5,
     });
   };
 
@@ -201,14 +181,16 @@ const ManageReaders = () => {
     navigate(location.pathname, { state: { timestamp: Date.now() } });
   };
 
+  // --- LOADING UI ---
+  if (isLoading)
+    return <div className="loading">⏳ Đang tải danh sách bạn đọc...</div>;
+  if (isError) return <div className="error">❌ Lỗi tải dữ liệu!</div>;
+
   return (
     <div className="readers-page">
       <div className="readers-header">
         <h1>Quản Lý Bạn Đọc</h1>
-        <button
-          onClick={handleAddReader}
-          className="add-reader-btn"
-        >
+        <button onClick={handleAddReader} className="add-reader-btn">
           Thêm Bạn Đọc Mới
         </button>
       </div>
@@ -235,20 +217,23 @@ const ManageReaders = () => {
         <table className="readers-table">
           <thead>
             <tr>
-              <th onClick={() => handleSort('id')} className="sortable">
-                Mã bạn đọc {getSortIcon('id')}
+              <th onClick={() => handleSort("readerCode")} className="sortable">
+                Mã bạn đọc {getSortIcon("readerCode")}
               </th>
-              <th onClick={() => handleSort('name')} className="sortable">
-                Họ tên {getSortIcon('name')}
+              <th onClick={() => handleSort("name")} className="sortable">
+                Họ tên {getSortIcon("name")}
               </th>
-              <th onClick={() => handleSort('email')} className="sortable">
-                Email {getSortIcon('email')}
+              <th onClick={() => handleSort("email")} className="sortable">
+                Email {getSortIcon("email")}
               </th>
-              <th onClick={() => handleSort('phone')} className="sortable">
-                SĐT {getSortIcon('phone')}
+              <th onClick={() => handleSort("phone")} className="sortable">
+                SĐT {getSortIcon("phone")}
               </th>
-              <th onClick={() => handleSort('borrowed')} className="sortable quota-header">
-                Số sách đang mượn / Quota {getSortIcon('borrowed')}
+              <th
+                onClick={() => handleSort("borrowed")}
+                className="sortable quota-header"
+              >
+                Số sách đang mượn / Quota {getSortIcon("borrowed")}
               </th>
               <th>Thao tác</th>
             </tr>
@@ -256,13 +241,17 @@ const ManageReaders = () => {
           <tbody>
             {Array.isArray(currentReaders) && currentReaders.length > 0 ? (
               currentReaders.map((reader) => (
-                <tr key={reader.id} className="reader-row">
-                  <td className="reader-code">{reader.id}</td>
+                <tr key={reader._id} className="reader-row">
+                  <td className="reader-code">{reader.readerCode}</td>
                   <td className="reader-name">{reader.name}</td>
                   <td className="reader-email">{reader.email}</td>
                   <td className="reader-phone">{reader.phone}</td>
                   <td className="reader-quota">
-                    <div className={`quota-display ${reader.borrowed > reader.quota ? 'over-quota' : ''}`}>
+                    <div
+                      className={`quota-display ${
+                        reader.borrowed > reader.quota ? "over-quota" : ""
+                      }`}
+                    >
                       {reader.borrowed}/{reader.quota}
                     </div>
                   </td>
@@ -274,7 +263,7 @@ const ManageReaders = () => {
                       Sửa
                     </button>
                     <button
-                      onClick={() => handleDelete(reader.id)}
+                      onClick={() => handleDelete(reader._id)}
                       className="delete-btn"
                     >
                       Xóa
@@ -285,7 +274,9 @@ const ManageReaders = () => {
             ) : (
               <tr>
                 <td colSpan="6" className="no-readers">
-                  {readers.length === 0 ? 'Chưa có bạn đọc nào. Hãy thêm bạn đọc mới!' : 'Không tìm thấy bạn đọc phù hợp'}
+                  {readers.length === 0
+                    ? "Chưa có bạn đọc nào. Hãy thêm bạn đọc mới!"
+                    : "Không tìm thấy bạn đọc phù hợp"}
                 </td>
               </tr>
             )}
@@ -296,25 +287,27 @@ const ManageReaders = () => {
       {/* Phân trang */}
       {totalPages > 1 && (
         <div className="pagination">
-          <button 
+          <button
             className="pagination-btn"
             disabled={currentPage === 1}
             onClick={() => handlePageChange(currentPage - 1)}
           >
             ← Trước
           </button>
-          
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
-              className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
+              className={`pagination-btn ${
+                currentPage === page ? "active" : ""
+              }`}
               onClick={() => handlePageChange(page)}
             >
               {page}
             </button>
           ))}
-          
-          <button 
+
+          <button
             className="pagination-btn"
             disabled={currentPage === totalPages}
             onClick={() => handlePageChange(currentPage + 1)}
@@ -329,9 +322,9 @@ const ManageReaders = () => {
         <div className="modal-overlay">
           <div className="modal-content">
             <h2 className="modal-title">
-              {editingReader ? 'Sửa thông tin bạn đọc' : 'Thêm bạn đọc mới'}
+              {editingReader ? "Sửa thông tin bạn đọc" : "Thêm bạn đọc mới"}
             </h2>
-            
+
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label className="form-label">Họ tên:</label>
@@ -345,7 +338,7 @@ const ManageReaders = () => {
                   placeholder="Nhập họ tên đầy đủ"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label className="form-label">Email:</label>
                 <input
@@ -358,7 +351,7 @@ const ManageReaders = () => {
                   placeholder="Nhập địa chỉ email"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label className="form-label">Số điện thoại:</label>
                 <input
@@ -371,7 +364,7 @@ const ManageReaders = () => {
                   placeholder="Nhập số điện thoại"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label className="form-label">Quota (số sách tối đa):</label>
                 <input
@@ -386,7 +379,7 @@ const ManageReaders = () => {
                   placeholder="Nhập số sách tối đa được mượn"
                 />
               </div>
-              
+
               <div className="form-actions">
                 <button
                   type="button"
@@ -395,11 +388,8 @@ const ManageReaders = () => {
                 >
                   Hủy
                 </button>
-                <button
-                  type="submit"
-                  className="submit-btn"
-                >
-                  {editingReader ? 'Cập nhật' : 'Thêm mới'}
+                <button type="submit" className="submit-btn">
+                  {editingReader ? "Cập nhật" : "Thêm mới"}
                 </button>
               </div>
             </form>

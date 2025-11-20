@@ -3,7 +3,7 @@ import {
   getBorrowHistoryApi,
   createBorrowRecordApi,
   returnBookApi,
-} from "../services/borrowService";
+} from "../service/borrowService";
 export const useGetBorrowHistory = () => {
   return useQuery({
     queryKey: ["borrows"],

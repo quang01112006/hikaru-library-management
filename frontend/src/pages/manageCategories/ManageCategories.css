@@ -8,27 +8,27 @@
   --success: #28a745;
   --shadow: rgba(0, 0, 0, 0.1);
 }
-
 .category-page {
   padding: 30px;
-  font-family: "Segoe UI", sans-serif;
-  color: #333;
+  color: var(--n-900);
+  font-family: "Roboto", sans-serif;
 }
 
 .category-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
+  background: var(--n-100);
   padding: 15px 25px;
   border-radius: 10px;
-  box-shadow: 0 2px 5px var(--shadow);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   margin-bottom: 20px;
 }
 
 .category-header h2 {
   margin: 0;
-  color: var(--main-color);
+  color: var(--p-500);
+  font-family: "Poppins", sans-serif;
   font-weight: 600;
 }
 
@@ -40,21 +40,22 @@
 
 .category-actions input {
   padding: 8px 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--n-300);
   border-radius: 6px;
   font-size: 14px;
   width: 220px;
+  background: var(--n-100);
   transition: 0.3s;
 }
 
 .category-actions input:focus {
-  border-color: var(--main-color);
+  border-color: var(--p-500);
   outline: none;
-  box-shadow: 0 0 4px var(--main-color);
+  box-shadow: 0 0 4px var(--p-500);
 }
 
 .btn-add {
-  background: var(--main-color);
+  background: var(--p-500);
   color: white;
   border: none;
   border-radius: 6px;
@@ -65,29 +66,29 @@
 }
 
 .btn-add:hover {
-  background: var(--hover-blue);
+  background: var(--p-700);
 }
-
 
 .category-table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+  background: var(--n-100);
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 2px 5px var(--shadow);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
 .category-table th,
 .category-table td {
   padding: 12px 16px;
   text-align: left;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--n-300);
 }
 
 .category-table th {
-  background: #f5faff;
-  color: var(--main-color);
+  background: var(--p-100);
+  color: var(--p-700);
+  font-family: "Poppins", sans-serif;
   font-weight: 600;
 }
 
@@ -96,11 +97,11 @@
   height: 60px;
   border-radius: 8px;
   object-fit: cover;
-  box-shadow: 0 1px 3px var(--shadow);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
 .row-hover:hover {
-  background: #f0f7ff;
+  background: var(--p-100);
   transition: 0.2s;
 }
 
@@ -111,31 +112,31 @@
   padding: 6px 10px;
   cursor: pointer;
   font-weight: 600;
-  transition: 0.3s;
   margin-right: 6px;
+  transition: 0.3s;
 }
 
 .btn-edit {
-  background: #ffc107;
-  color: #222;
+  background: var(--warning-500);
+  color: var(--n-900);
 }
 
 .btn-edit:hover {
-  background: #e0a800;
+  background: var(--warning-700);
 }
 
 .btn-delete {
-  background: var(--danger);
+  background: var(--danger-500);
   color: white;
 }
 
 .btn-delete:hover {
-  background: #b32d3c;
+  background: var(--danger-700);
 }
 
 .no-data {
   text-align: center;
-  color: #888;
+  color: var(--n-500);
   font-style: italic;
   padding: 20px 0;
 }
@@ -149,7 +150,7 @@
 }
 
 .pagination button {
-  background: var(--main-color);
+  background: var(--p-500);
   color: white;
   border: none;
   border-radius: 6px;
@@ -159,12 +160,12 @@
 }
 
 .pagination button:disabled {
-  background: #a0c8eb;
+  background: var(--n-300);
   cursor: not-allowed;
 }
 
 .pagination button:hover:not(:disabled) {
-  background: var(--hover-blue);
+  background: var(--p-700);
 }
 
 .overlay {
@@ -182,10 +183,10 @@
 
 .form-popup,
 .confirm-modal {
-  background: white;
+  background: var(--n-100);
   padding: 25px;
   border-radius: 12px;
-  box-shadow: 0 4px 10px var(--shadow);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   width: 480px;
   max-width: 100%;
   animation: pop 0.3s ease;
@@ -193,9 +194,10 @@
 
 .form-popup h3,
 .confirm-modal h3 {
-  color: var(--main-color);
+  color: var(--p-700);
   margin-bottom: 15px;
   text-align: center;
+  font-family: "Poppins", sans-serif;
 }
 
 .form-popup form {
@@ -208,17 +210,18 @@
 .form-popup input[type="file"],
 .form-popup textarea {
   padding: 8px 10px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--n-300);
   border-radius: 6px;
   font-size: 14px;
   resize: none;
+  background: var(--n-100);
 }
 
 .form-popup input:focus,
 .form-popup textarea:focus {
-  border-color: var(--main-color);
+  border-color: var(--p-500);
   outline: none;
-  box-shadow: 0 0 4px var(--main-color);
+  box-shadow: 0 0 4px var(--p-500);
 }
 
 .preview-img {
@@ -227,7 +230,7 @@
   object-fit: cover;
   border-radius: 8px;
   margin: 5px 0;
-  box-shadow: 0 2px 5px var(--shadow);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
 .form-buttons {
@@ -238,7 +241,7 @@
 }
 
 .form-buttons button {
-  background: var(--main-color);
+  background: var(--p-500);
   color: white;
   border: none;
   padding: 7px 14px;
@@ -249,31 +252,32 @@
 }
 
 .form-buttons button:hover {
-  background: var(--hover-blue);
+  background: var(--p-700);
 }
 
 .btn-cancel {
-  background: #ccc !important;
-  color: #222 !important;
+  background: var(--n-300) !important;
+  color: var(--n-900) !important;
 }
 
 .btn-cancel:hover {
-  background: #aaa !important;
+  background: var(--n-500) !important;
 }
 
 .notification {
   position: fixed;
   bottom: 30px;
   right: 30px;
-  background: var(--success);
+  background: var(--success-500);
   color: white;
   padding: 12px 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px var(--shadow);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   font-weight: 600;
   z-index: 100;
   animation: fadeInOut 2s ease;
 }
+
 
 @keyframes pop {
   0% {
