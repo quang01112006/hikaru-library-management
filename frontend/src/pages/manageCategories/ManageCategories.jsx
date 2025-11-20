@@ -135,10 +135,10 @@ const ManageCategories = () => {
   }, [showAddForm, showEditForm, showDeleteModal]);
 
   // === XỬ LÝ LOADING ===
-  // if (isCategoryLoading)
-  //   return <div className="loading-text">⏳ Đang tải dữ liệu...</div>;
-  // if (isCategoryError)
-  //   return <div className="error-text">❌ Lỗi tải trang!</div>;
+  if (isCategoryLoading)
+    return <div className="loading-text">⏳ Đang tải dữ liệu...</div>;
+  if (isCategoryError)
+    return <div className="error-text">❌ Lỗi tải trang!</div>;
 
   
   return (
