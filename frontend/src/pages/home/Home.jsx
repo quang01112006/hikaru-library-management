@@ -1,11 +1,10 @@
 // frontend/src/pages/HomePage.jsx
 import React, { useState, useEffect } from 'react';
-import { fetchHomeData } from '../api/statsApi';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+//import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 // Cần cài đặt recharts và đảm bảo react-router-dom đã được setup cho route này
 
 // --- Component phụ cho Vùng 1 ---
-const Card = ({ title, value, color = 'var(--p-500)' }) => ( // Đặt màu mặc định là p-500
+const Card = ({ title, value, color = 'var(--p-500)' }) => ( 
     <div style={{ /* ... style khác ... */ }}>
         <h4 style={{ margin: '0 0 5px 0', color: 'var(--n-700)' }}>{title}</h4> {/* Dùng màu trung tính đậm cho tiêu đề */}
         <h1 style={{ color: color, margin: '0', fontSize: '2.5rem' }}>{value}</h1>
@@ -52,7 +51,7 @@ const OverdueTable = ({ list }) => (
 );
 
 
-const HomePage = () => {
+const Home = () => {
     const [data, setData] = useState({
         summary: {},
         chartData: [],
@@ -60,12 +59,12 @@ const HomePage = () => {
     });
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchHomeData().then(result => {
-            setData(result);
-            setLoading(false);
-        });
-    }, []);
+    // useEffect(() => {
+    //     fetchHomeData().then(result => {
+    //         setData(result);
+    //         setLoading(false);
+    //     });
+    // }, []);
 
     if (loading) return <div style={{ padding: '20px' }}>Đang tải dữ liệu Trang Chủ...</div>;
 
@@ -86,7 +85,7 @@ const HomePage = () => {
             <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', marginBottom: '40px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
                 <h3>📈 Biểu đồ Hoạt động Mượn Trả</h3>
                 <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={data.chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                    {/* <LineChart data={data.chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" />
                         <YAxis />
@@ -94,7 +93,7 @@ const HomePage = () => {
                         <Legend />
                         <Line type="monotone" dataKey="muon" stroke="#007bff" name="Số lần Mượn" activeDot={{ r: 8 }} />
                         <Line type="monotone" dataKey="tra" stroke="#28a745" name="Số lần Trả" />
-                    </LineChart>
+                    </LineChart> */}
                 </ResponsiveContainer>
             </div>
             
@@ -105,4 +104,4 @@ const HomePage = () => {
     );
 };
 
-export default HomePage;
+export default Home;
