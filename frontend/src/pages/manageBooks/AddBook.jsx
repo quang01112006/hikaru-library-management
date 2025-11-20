@@ -2,121 +2,93 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./AddBook.css";
 
+// 1. IMPORT HOOKS XỊN
+import { 
+  useAddBook, 
+  useUpdateBook, 
+  useGetBookById 
+} from "../../hooks/useBook";
+import { useGetAllCategories } from "../../hooks/useCategory";
+
 export default function BookForm() {
-  const { id } = useParams();
+  const { id } = useParams(); // Lấy ID từ URL (nếu đang Edit)
   const navigate = useNavigate();
   const isEditMode = Boolean(id);
+
+  // 2. GỌI HOOK LẤY DỮ LIỆU (Khi Edit)
+  const { data: bookData, isLoading: isLoadingBook } = useGetBookById(id);
+  
+  // 3. GỌI HOOK LẤY DANH MỤC (Để đổ vào Select Box)
+  const { data: categoriesData } = useGetAllCategories();
+  const categories = categoriesData || [];
+
+  // 4. GỌI HOOK HÀNH ĐỘNG
+  const { mutate: addBook, isPending: isAdding } = useAddBook();
+  const { mutate: updateBook, isPending: isUpdating } = useUpdateBook();
+  
+  const isSubmitting = isAdding || isUpdating;
 
   const [formData, setFormData] = useState({
     title: "",
     author: "",
-    code: "",
-    totalQuantity: 1,
-    availableQuantity: 1,
-    category: "",
-    description: ""
+    bookCode: "",
+    quantity: 1,     // BE dùng 'quantity'
+    // availableQuantity: BE tự tính, ko cần gửi lên trừ khi muốn sửa tay
+    genre: "",       // BE dùng 'genre' (ObjectId)
+    description: "",
+    image: "",       // Thêm trường ảnh
   });
 
   const [errors, setErrors] = useState({});
 
-  // Hàm tìm mã sách tiếp theo
-  const getNextAvailableCode = (existingBooks) => {
-    const existingCodes = existingBooks.map(book => book.code);
-    
-    for (let i = 1; i <= 999; i++) {
-      const potentialCode = `B${String(i).padStart(3, '0')}`;
-      if (!existingCodes.includes(potentialCode)) {
-        return potentialCode;
-      }
-    }
-    
-    return `B${String(existingBooks.length + 1).padStart(3, '0')}`;
-  };
-
+  // --- EFFECT: ĐIỀN DỮ LIỆU KHI EDIT ---
   useEffect(() => {
-    if (isEditMode) {
-      const savedBooks = JSON.parse(localStorage.getItem('libraryBooks') || '[]');
-      const bookToEdit = savedBooks.find(book => book.id === parseInt(id));
-      if (bookToEdit) {
-        setFormData(bookToEdit);
-      }
-    } else {
-      const savedBooks = JSON.parse(localStorage.getItem('libraryBooks') || '[]');
-      const nextCode = getNextAvailableCode(savedBooks);
-      setFormData(prev => ({ 
-        ...prev, 
-        code: nextCode,
-        totalQuantity: 1,
-        availableQuantity: 1 
-      }));
+    if (isEditMode && bookData) {
+      // Map dữ liệu từ API vào Form
+      setFormData({
+        title: bookData.title || "",
+        author: bookData.author || "",
+        bookCode: bookData.bookCode || "",
+        quantity: bookData.quantity || 1,
+        genre: bookData.genre?._id || bookData.genre || "", // Lấy ID thể loại
+        description: bookData.description || "",
+        image: bookData.image || "",
+      });
     }
-  }, [id, isEditMode]);
+  }, [isEditMode, bookData]);
+
+  // --- XỬ LÝ UPLOAD ẢNH (Base64) ---
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData({ ...formData, image: reader.result });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
-    setFormData(prev => {
-      const newFormData = {
-        ...prev,
-        [name]: name.includes('Quantity') ? parseInt(value) || 0 : value
-      };
-      
-      if (name === 'totalQuantity') {
-        const total = parseInt(value) || 0;
-        const available = Math.min(prev.availableQuantity, total);
-        newFormData.availableQuantity = available;
-      }
-      
-      return newFormData;
+    setFormData({
+      ...formData,
+      [name]: name === "quantity" ? parseInt(value) || 0 : value,
     });
     
+    // Xóa lỗi khi gõ
     if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ""
-      }));
+      setErrors({ ...errors, [name]: "" });
     }
   };
 
+  // Validate
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.title.trim()) {
-      newErrors.title = "Tên sách không được để trống";
-    }
-
-    if (!formData.author.trim()) {
-      newErrors.author = "Tác giả không được để trống";
-    }
-
-    if (!formData.code.trim()) {
-      newErrors.code = "Mã sách không được để trống";
-    }
-
-    // Kiểm tra mã sách trùng (chỉ khi thêm mới)
-    if (!isEditMode) {
-      const savedBooks = JSON.parse(localStorage.getItem('libraryBooks') || '[]');
-      const isCodeDuplicate = savedBooks.some(book => book.code === formData.code);
-      if (isCodeDuplicate) {
-        newErrors.code = "Mã sách đã tồn tại";
-      }
-    }
-
-    if (formData.totalQuantity < 1) {
-      newErrors.totalQuantity = "Tổng số lượng phải lớn hơn 0";
-    }
-
-    if (formData.availableQuantity < 0) {
-      newErrors.availableQuantity = "Số lượng còn lại không được âm";
-    }
-
-    if (formData.availableQuantity > formData.totalQuantity) {
-      newErrors.availableQuantity = "Số lượng còn lại không được lớn hơn tổng số lượng";
-    }
-
-    if (!formData.category.trim()) {
-      newErrors.category = "Thể loại không được để trống";
-    }
+    if (!formData.title.trim()) newErrors.title = "Tên sách bắt buộc";
+    if (!formData.author.trim()) newErrors.author = "Tác giả bắt buộc";
+    if (!formData.bookCode.trim()) newErrors.bookCode = "Mã sách bắt buộc";
+    if (formData.quantity < 1) newErrors.quantity = "Số lượng phải > 0";
+    if (!formData.genre) newErrors.genre = "Vui lòng chọn thể loại";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -124,40 +96,46 @@ export default function BookForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (validateForm()) {
-      const savedBooks = JSON.parse(localStorage.getItem('libraryBooks') || '[]');
-      
-      if (isEditMode) {
-        const updatedBooks = savedBooks.map(book => 
-          book.id === parseInt(id) ? { ...formData, id: parseInt(id) } : book
-        );
-        localStorage.setItem('libraryBooks', JSON.stringify(updatedBooks));
-      } else {
-        const newBook = {
-          ...formData,
-          id: Date.now(),
-        };
-        const updatedBooks = [...savedBooks, newBook];
-        localStorage.setItem('libraryBooks', JSON.stringify(updatedBooks));
-      }
-      
-      alert(isEditMode ? "Cập nhật sách thành công!" : "Thêm sách thành công!");
-      
-      // Force reload bằng cách truyền state
-      navigate("/manage/books", { state: { timestamp: Date.now() } });
+    if (!validateForm()) return;
+
+    // Chuẩn bị payload gửi đi
+    const payload = {
+        ...formData,
+        // Nếu không chọn ảnh, dùng ảnh mặc định
+        image: formData.image || "https://via.placeholder.com/150" 
+    };
+
+    if (isEditMode) {
+      // --- GỌI API UPDATE ---
+      updateBook(
+        { id, data: payload },
+        {
+          onSuccess: () => {
+            alert("Cập nhật thành công!");
+            navigate("/manage/books"); // Quay về danh sách (ko cần reload)
+          },
+          onError: (err) => alert("Lỗi: " + err.response?.data?.message),
+        }
+      );
+    } else {
+      // --- GỌI API ADD ---
+      addBook(payload, {
+        onSuccess: () => {
+          alert("Thêm sách thành công!");
+          navigate("/manage/books");
+        },
+        onError: (err) => alert("Lỗi: " + err.response?.data?.message),
+      });
     }
   };
 
-  const handleCancel = () => {
-    navigate("/manage/books");
-  };
+  if (isEditMode && isLoadingBook) return <div>Đang tải thông tin sách...</div>;
 
   return (
     <div className="book-form-page">
       <div className="form-header">
         <h1>{isEditMode ? "Chỉnh Sửa Sách" : "Thêm Sách Mới"}</h1>
-        <button className="back-btn" onClick={handleCancel}>
+        <button className="back-btn" onClick={() => navigate("/manage/books")}>
           ← Quay lại
         </button>
       </div>
@@ -199,70 +177,59 @@ export default function BookForm() {
             <input
               type="text"
               id="code"
-              name="code"
-              value={formData.code}
+              name="bookCode" // Sửa name thành bookCode cho khớp state
+              value={formData.bookCode}
               onChange={handleChange}
-              className={errors.code ? "error" : ""}
-              placeholder="Nhập mã sách"
-              disabled={isEditMode}
+              className={errors.bookCode ? "error" : ""}
+              placeholder="Nhập mã sách (VD: B001)"
+              // disabled={isEditMode} // Tùy sếp có cho sửa mã hay ko
             />
-            {errors.code && <span className="error-message">{errors.code}</span>}
+            {errors.bookCode && <span className="error-message">{errors.bookCode}</span>}
           </div>
 
           <div className="form-group">
-            <label htmlFor="category">Thể loại *</label>
+            <label htmlFor="genre">Thể loại *</label>
             <select
-              id="category"
-              name="category"
-              value={formData.category}
+              id="genre"
+              name="genre"
+              value={formData.genre}
               onChange={handleChange}
-              className={errors.category ? "error" : ""}
+              className={errors.genre ? "error" : ""}
             >
-              <option value="">Chọn thể loại</option>
-              <option value="Văn học">Văn học</option>
-              <option value="Khoa học">Khoa học</option>
-              <option value="Kỹ năng">Kỹ năng</option>
-              <option value="Lịch sử">Lịch sử</option>
-              <option value="Kinh tế">Kinh tế</option>
-              <option value="Thiếu nhi">Thiếu nhi</option>
-              <option value="Trinh thám">Trinh thám</option>
-              <option value="Fantasy">Fantasy</option>
-              <option value="Khoa học viễn tưởng">Khoa học viễn tưởng</option>
+              <option value="">-- Chọn thể loại --</option>
+              {/* MAP DATA THẬT TỪ API */}
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
             </select>
-            {errors.category && <span className="error-message">{errors.category}</span>}
+            {errors.genre && <span className="error-message">{errors.genre}</span>}
           </div>
         </div>
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="totalQuantity">Tổng số lượng *</label>
+            <label htmlFor="quantity">Tổng số lượng *</label>
             <input
               type="number"
-              id="totalQuantity"
-              name="totalQuantity"
-              value={formData.totalQuantity}
+              id="quantity"
+              name="quantity"
+              value={formData.quantity}
               onChange={handleChange}
-              className={errors.totalQuantity ? "error" : ""}
-              placeholder="Tổng số sách"
+              className={errors.quantity ? "error" : ""}
               min="1"
             />
-            {errors.totalQuantity && <span className="error-message">{errors.totalQuantity}</span>}
+            {errors.quantity && <span className="error-message">{errors.quantity}</span>}
           </div>
 
+          {/* Thêm input Ảnh */}
           <div className="form-group">
-            <label htmlFor="availableQuantity">Số lượng còn lại *</label>
-            <input
-              type="number"
-              id="availableQuantity"
-              name="availableQuantity"
-              value={formData.availableQuantity}
-              onChange={handleChange}
-              className={errors.availableQuantity ? "error" : ""}
-              placeholder="Số sách có sẵn"
-              min="0"
-              max={formData.totalQuantity}
-            />
-            {errors.availableQuantity && <span className="error-message">{errors.availableQuantity}</span>}
+            <label>Ảnh bìa:</label>
+            <input type="file" accept="image/*" onChange={handleImageUpload} />
+            {formData.image && (
+               <img src={formData.image} alt="Preview" style={{width: 60, marginTop: 10}} />
+            )}
           </div>
         </div>
 
@@ -273,17 +240,17 @@ export default function BookForm() {
             name="description"
             value={formData.description}
             onChange={handleChange}
-            placeholder="Nhập mô tả về sách"
+            placeholder="Nhập mô tả..."
             rows="4"
           />
         </div>
 
         <div className="form-actions">
-          <button type="button" className="cancel-btn" onClick={handleCancel}>
+          <button type="button" className="cancel-btn" onClick={() => navigate("/manage/books")}>
             Hủy
           </button>
-          <button type="submit" className="submit-btn">
-            {isEditMode ? "Cập nhật" : "Thêm sách"}
+          <button type="submit" className="submit-btn" disabled={isSubmitting}>
+            {isSubmitting ? "Đang lưu..." : (isEditMode ? "Cập nhật" : "Thêm sách")}
           </button>
         </div>
       </form>

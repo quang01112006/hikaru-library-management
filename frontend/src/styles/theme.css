@@ -19,6 +19,23 @@
   --main-gradient-color: linear-gradient(to right, var(--p-300), var(--p-500));
   --gradient-color: linear-gradient(var(--n-100) 10%, var(--p-300));
 
+  /* Functional Colors */
+  --success-300: hsl(142, 55%, 70%);
+  --success-500: hsl(142, 72%, 45%);
+  --success-700: hsl(142, 75%, 29%);
+
+  --warning-300: hsl(45, 100%, 71%);
+  --warning-500: hsl(45, 100%, 51%);
+  --warning-700: hsl(45, 100%, 31%);
+
+  --danger-300: hsl(0, 85%, 75%);
+  --danger-500: hsl(0, 72%, 50%);
+  --danger-700: hsl(0, 75%, 40%);
+
+  --info-300: hsl(200, 80%, 75%);
+  --info-500: hsl(200, 85%, 55%);
+  --info-700: hsl(200, 89%, 35%);
+
   /*===============================
           font - scale 1.125
     ===============================*/

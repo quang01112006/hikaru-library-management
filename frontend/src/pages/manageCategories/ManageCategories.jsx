@@ -8,13 +8,9 @@ import {
 } from "../../hooks/useCategory";
 
 const ManageCategories = () => {
-  // ===================================================================
-  // thằng useGetAllCategories trả về object có key là data, isLoading,...
-  // mình lấy các key ra và tự đặt lại tên (để tránh bị trùng )
-  //===================================================================
   const {
     data: categoriesData,
-    isLoading: isCategoryLoading, // Đổi tên cho dễ phân biệt
+    isLoading: isCategoryLoading,
     isError: isCategoryError,
   } = useGetAllCategories();
 
@@ -26,7 +22,6 @@ const ManageCategories = () => {
   const { mutate: updateCategory } = useUpdateCategory();
   const { mutate: deleteCategory } = useDeleteCategory();
 
-  // giữ nguyên các state UI
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -39,7 +34,7 @@ const ManageCategories = () => {
   });
   const [notification, setNotification] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
 
   const showNotification = (message) => {
     setNotification(message);
@@ -70,7 +65,6 @@ const ManageCategories = () => {
     startIndex + itemsPerPage
   );
 
-  // ====== Hàm add mới dùng react query ========
   const handleAddCategory = (e) => {
     e.preventDefault();
     addCategory(
@@ -115,7 +109,7 @@ const ManageCategories = () => {
     if (!selectedCategory) return;
     updateCategory(
       {
-        id: selectedCategory._id, // ID để tìm, mongoDB xài _id chứ ko phải id
+        id: selectedCategory._id,
         data: {
           name: selectedCategory.name,
           description: selectedCategory.description,
@@ -141,29 +135,12 @@ const ManageCategories = () => {
   }, [showAddForm, showEditForm, showDeleteModal]);
 
   // === XỬ LÝ LOADING ===
-  if (isCategoryLoading)
-    return <div className="loading-text">⏳ Đang tải dữ liệu...</div>;
-  if (isCategoryError)
-    return <div className="error-text">❌ Lỗi tải trang!</div>;
+  // if (isCategoryLoading)
+  //   return <div className="loading-text">⏳ Đang tải dữ liệu...</div>;
+  // if (isCategoryError)
+  //   return <div className="error-text">❌ Lỗi tải trang!</div>;
 
-  const getShortCode = (name) => {
-    if (!name) return "N/A";
-
-    const cleanName = name.trim();
-    const words = cleanName.split(" ");
-
-    // Trường hợp 1: Tên nhiều từ (VD: Slice of Life) -> Lấy ký tự đầu (SOL)
-    if (words.length > 1) {
-      return words
-        .map((w) => w[0])
-        .join("")
-        .substring(0, 3)
-        .toUpperCase();
-    }
-    // Trường hợp 2: Tên 1 từ (VD: Technology) -> Lấy 3 chữ đầu (TEC)
-    return cleanName.substring(0, 3).toUpperCase();
-  };
-
+  
   return (
     <div className="category-page fade-in">
       <div className="category-header slide-down">
@@ -185,7 +162,7 @@ const ManageCategories = () => {
         <thead>
           <tr>
             <th>Tên thể loại</th>
-            <th>ID</th>
+            {/* <th>ID</th> */}
             <th>Số lượng</th>
             <th>Mô tả</th>
             <th>Hành động</th>
@@ -210,9 +187,9 @@ const ManageCategories = () => {
                   <span>{cat.name}</span>
                 </div>
               </td>
-              <td>
+              {/* <td>
                 <span>{getShortCode(cat.name)}</span>
-              </td>
+              </td> */}
               <td>{cat.count || 0}</td>
               <td>{cat.description}</td>
               <td>

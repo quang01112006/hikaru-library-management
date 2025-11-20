@@ -8,6 +8,7 @@ export const getAllBooks = async (req, res) => {
       "genre",
       "name"
     );
+
     res.status(200).json(books);
   } catch (error) {
     console.log("Lỗi khi gọi getAllBooks:", error.message);
@@ -21,6 +22,7 @@ export const getBookById = async (req, res) => {
       _id: req.params.id,
       isHidden: false,
     }).populate("genre", "name");
+
     if (!book) {
       return res.status(404).json({ message: "Không tìm thấy sách" });
     }
@@ -50,7 +52,8 @@ export const searchBooks = async (req, res) => {
 
 export const addBook = async (req, res) => {
   try {
-    const { bookCode, title, author, genre, quantity } = req.body;
+    const { bookCode, title, author, genre, quantity, image, description } =
+      req.body;
 
     const category = await Category.findById(genre);
     if (!category) {
@@ -62,8 +65,12 @@ export const addBook = async (req, res) => {
       title,
       author,
       genre,
-      quantity,
+      quantity: Number(quantity),
+      availableQuantity: Number(quantity),
+      image,
+      description,
     });
+
     await newBook.save();
     res.status(201).json(newBook);
   } catch (error) {
@@ -83,19 +90,22 @@ export const updateBookInfo = async (req, res) => {
       return res.status(404).json({ message: "Sách không tồn tại" });
     }
 
-    const { title, author, genre, quantity, isHidden } = req.body;
+    const { title, author, genre, quantity, isHidden, image, description } =
+      req.body;
 
+    // Logic tính toán số lượng tồn kho khi tổng số lượng thay đổi
     let newAvailableQuantity = currentBook.availableQuantity;
-    if (quantity !== undefined && quantity !== currentBook.quantity) {
+    if (quantity !== undefined && Number(quantity) !== currentBook.quantity) {
       const booksOnLoan = currentBook.quantity - currentBook.availableQuantity;
-      if (quantity < booksOnLoan) {
+
+      // Không cho phép giảm tổng số lượng xuống thấp hơn số sách đang cho mượn
+      if (Number(quantity) < booksOnLoan) {
         return res.status(400).json({
-          message: `Không thể cập nhật. Sách đang cho mượn ${booksOnLoan} cuốn, không thể set tổng số lượng < ${booksOnLoan}`,
+          message: `Không thể cập nhật. Đang có ${booksOnLoan} cuốn được mượn, tổng số mới phải >= ${booksOnLoan}`,
         });
       }
 
-      // Tính số sách còn trong kho
-      const diff = quantity - currentBook.quantity;
+      const diff = Number(quantity) - currentBook.quantity;
       newAvailableQuantity = currentBook.availableQuantity + diff;
     }
 
@@ -105,6 +115,8 @@ export const updateBookInfo = async (req, res) => {
       genre,
       quantity,
       isHidden,
+      image,
+      description,
       availableQuantity: newAvailableQuantity,
     };
 
@@ -121,10 +133,8 @@ export const updateBookInfo = async (req, res) => {
 export const deleteBook = async (req, res) => {
   try {
     const bookId = req.params.id;
-    const deletedBook = await Book.findByIdAndDelete(bookId);
-    if (!deletedBook) {
-      return res.status(404).json({ message: "Không tìm thấy sách" });
-    }
+
+    // Kiểm tra xem sách này có đang bị mượn không (chưa trả)
     const outstandingBorrows = await BorrowRecord.countDocuments({
       book: bookId,
       returnDate: null,
@@ -134,6 +144,12 @@ export const deleteBook = async (req, res) => {
       return res.status(400).json({
         message: `Không thể xóa. Sách này đang được ${outstandingBorrows} bạn đọc mượn.`,
       });
+    }
+
+    const deletedBook = await Book.findByIdAndDelete(bookId);
+
+    if (!deletedBook) {
+      return res.status(404).json({ message: "Không tìm thấy sách" });
     }
 
     res.status(200).json({ message: "Xóa sách thành công", book: deletedBook });
