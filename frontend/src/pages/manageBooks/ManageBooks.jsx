@@ -9,7 +9,7 @@ import {
 } from "../../hooks/useBook";
 
 export default function BooksPage() {
-  const { data: bookData, isLoading, isError } = useGetBook();
+  const { data: bookData, isLoading, isError, error } = useGetBook();
   const books = bookData || []; //đề phòng lỗi server
 
   // Gọi Hook Xóa
@@ -95,9 +95,9 @@ export default function BooksPage() {
     return sortConfig.direction === "asc" ? "↑" : "↓";
   };
 
-  // --- LOADING UI, đợi có component Loading , error r tính ---
-  // if (isLoading) return <div className="loading">⏳ Đang tải sách...</div>;
-  // if (isError) return <div className="error">❌ Lỗi: {error.message}</div>;
+  // --- LOADING UI, đợi có component Loading , error thì thay vô ---
+  if (isLoading) return <div className="loading">⏳ Đang tải sách...</div>;
+  if (isError) return <div className="error">❌ Lỗi: {error.message}</div>;
   return (
     <div className="books-page">
       <div className="books-header">
