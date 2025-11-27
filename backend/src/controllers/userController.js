@@ -77,13 +77,20 @@ export const getAllUsers = async (req, res) => {
 };
 export const updateUser = async (req, res) => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    if (!updatedUser) {
+    const { username, password, role } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) {
       return res.status(404).json({ message: "User không tồn tại" });
     }
-    res.status(200).json(updatedUser);
+    if (username) user.username = username;
+    if (role) user.role = role;
+    if (password) {
+      user.password = password;
+    }
+    const updatedUser = await user.save();
+    const userResponse = updatedUser.toObject();
+    delete userResponse.password;
+    res.status(200).json(userResponse);
   } catch (error) {
     console.log("Lỗi khi gọi updateUser:", error.message);
     res.status(500).json({ message: "Lỗi hệ thống" });
@@ -92,6 +99,11 @@ export const updateUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
+    if (req.params.id === req.user._id.toString()) {
+      return res
+        .status(400)
+        .json({ message: "Không thể tự xóa tài khoản của mình!" });
+    }
     const deletedUser = await User.findByIdAndDelete(req.params.id);
     if (!deletedUser) {
       return res.status(404).json({ message: "User không tồn tại" });

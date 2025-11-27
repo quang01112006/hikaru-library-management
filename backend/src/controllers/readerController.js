@@ -28,26 +28,22 @@ export const addReader = async (req, res) => {
   try {
     let { readerCode, name, email, phone, quota } = req.body;
 
-    // --- LOGIC TỰ SINH MÃ Rxxx (NẾU KHÔNG NHẬP) ---
     if (!readerCode) {
-      // 1. Tìm bạn đọc có mã lớn nhất hiện tại (Sắp xếp giảm dần theo readerCode)
+      // Tìm bạn đọc có mã lớn nhất hiện tại (Sắp xếp giảm dần theo readerCode)
       const lastReader = await Reader.findOne().sort({ readerCode: -1 });
 
       if (lastReader && lastReader.readerCode.startsWith("R")) {
-        // 2. Nếu tìm thấy: Cắt bỏ chữ "R", lấy phần số (Ví dụ "R005" -> 5)
+        // Cắt chữ R, lấy phần số
         const lastNumber = parseInt(lastReader.readerCode.slice(1));
 
-        // 3. Cộng thêm 1 và format lại thành 3 chữ số (Ví dụ 6 -> "006")
+        // Cộng thêm 1 và format lại thành 3 chữ số
         const nextNumber = lastNumber + 1;
         readerCode = `R${nextNumber.toString().padStart(3, "0")}`;
       } else {
-        // 4. Nếu kho trống (chưa có ai), hoặc mã cũ không đúng định dạng
-        // -> Khởi tạo người đầu tiên
         readerCode = "R000";
       }
     }
 
-    // Validate tên
     if (!name) {
       return res.status(400).json({ message: "Tên bạn đọc là bắt buộc!" });
     }
