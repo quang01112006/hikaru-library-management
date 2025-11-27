@@ -1,16 +1,8 @@
-/* Màu chủ đạo */
-:root {
-  --main-color: #0078d7;
-  --light-blue: #e8f3ff;
-  --hover-blue: #005fa3;
-  --border-color: #dbe8f3;
-  --danger: #dc3545;
-  --success: #28a745;
-  --shadow: rgba(0, 0, 0, 0.1);
-}
+
 .category-page {
   padding: 30px;
-  color: var(--n-900);
+  height: 100vh;
+  background: var(--gradient-color);
   font-family: "Roboto", sans-serif;
 }
 
@@ -18,7 +10,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--n-100);
   padding: 15px 25px;
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
@@ -49,7 +40,7 @@
 }
 
 .category-actions input:focus {
-  border-color: var(--p-500);
+  border-color: var(--p-300);
   outline: none;
   box-shadow: 0 0 4px var(--p-500);
 }
@@ -150,7 +141,7 @@
 }
 
 .pagination button {
-  background: var(--p-500);
+  background: var(--p-500) !important;
   color: white;
   border: none;
   border-radius: 6px;
@@ -160,7 +151,7 @@
 }
 
 .pagination button:disabled {
-  background: var(--n-300);
+  background: var(--n-300) !important;
   cursor: not-allowed;
 }
 

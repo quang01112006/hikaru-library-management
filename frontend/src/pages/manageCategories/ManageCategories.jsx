@@ -34,7 +34,7 @@ const ManageCategories = () => {
   });
   const [notification, setNotification] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 5;
 
   const showNotification = (message) => {
     setNotification(message);
@@ -136,9 +136,9 @@ const ManageCategories = () => {
 
   // === XỬ LÝ LOADING ===
   if (isCategoryLoading)
-    return <div className="loading-text">⏳ Đang tải dữ liệu...</div>;
+    return <div className="loading-text"> Đang tải dữ liệu...</div>;
   if (isCategoryError)
-    return <div className="error-text">❌ Lỗi tải trang!</div>;
+    return <div className="error-text"> Lỗi tải trang!</div>;
 
   
   return (
