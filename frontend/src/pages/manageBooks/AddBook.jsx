@@ -3,11 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import "./AddBook.css";
 
 // 1. IMPORT HOOKS XỊN
-import { 
-  useAddBook, 
-  useUpdateBook, 
-  useGetBookById 
-} from "../../hooks/useBook";
+import { useAddBook, useUpdateBook, useGetBookById } from "../../hooks/useBook";
 import { useGetAllCategories } from "../../hooks/useCategory";
 
 export default function BookForm() {
@@ -17,7 +13,7 @@ export default function BookForm() {
 
   // 2. GỌI HOOK LẤY DỮ LIỆU (Khi Edit)
   const { data: bookData, isLoading: isLoadingBook } = useGetBookById(id);
-  
+
   // 3. GỌI HOOK LẤY DANH MỤC (Để đổ vào Select Box)
   const { data: categoriesData } = useGetAllCategories();
   const categories = categoriesData || [];
@@ -25,18 +21,18 @@ export default function BookForm() {
   // 4. GỌI HOOK HÀNH ĐỘNG
   const { mutate: addBook, isPending: isAdding } = useAddBook();
   const { mutate: updateBook, isPending: isUpdating } = useUpdateBook();
-  
+
   const isSubmitting = isAdding || isUpdating;
 
   const [formData, setFormData] = useState({
     title: "",
     author: "",
     bookCode: "",
-    quantity: 1,     // BE dùng 'quantity'
+    quantity: 1, // BE dùng 'quantity'
     // availableQuantity: BE tự tính, ko cần gửi lên trừ khi muốn sửa tay
-    genre: "",       // BE dùng 'genre' (ObjectId)
+    genre: "", // BE dùng 'genre' (ObjectId)
     description: "",
-    image: "",       // Thêm trường ảnh
+    image: "", // Thêm trường ảnh
   });
 
   const [errors, setErrors] = useState({});
@@ -74,7 +70,7 @@ export default function BookForm() {
       ...formData,
       [name]: name === "quantity" ? parseInt(value) || 0 : value,
     });
-    
+
     // Xóa lỗi khi gõ
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
@@ -100,9 +96,11 @@ export default function BookForm() {
 
     // Chuẩn bị payload gửi đi
     const payload = {
-        ...formData,
-        // Nếu không chọn ảnh, dùng ảnh mặc định
-        image: formData.image || "https://via.placeholder.com/150" 
+      ...formData,
+      // Nếu không chọn ảnh, dùng ảnh mặc định
+      image:
+        formData.image ||
+        `https://ui-avatars.com/api/?name=${formData.title}&background=random&color=fff&size=128`,
     };
 
     if (isEditMode) {
@@ -153,7 +151,9 @@ export default function BookForm() {
               className={errors.title ? "error" : ""}
               placeholder="Nhập tên sách"
             />
-            {errors.title && <span className="error-message">{errors.title}</span>}
+            {errors.title && (
+              <span className="error-message">{errors.title}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -167,7 +167,9 @@ export default function BookForm() {
               className={errors.author ? "error" : ""}
               placeholder="Nhập tên tác giả"
             />
-            {errors.author && <span className="error-message">{errors.author}</span>}
+            {errors.author && (
+              <span className="error-message">{errors.author}</span>
+            )}
           </div>
         </div>
 
@@ -184,7 +186,9 @@ export default function BookForm() {
               placeholder="Nhập mã sách (VD: B001)"
               // disabled={isEditMode} // Tùy sếp có cho sửa mã hay ko
             />
-            {errors.bookCode && <span className="error-message">{errors.bookCode}</span>}
+            {errors.bookCode && (
+              <span className="error-message">{errors.bookCode}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -204,7 +208,9 @@ export default function BookForm() {
                 </option>
               ))}
             </select>
-            {errors.genre && <span className="error-message">{errors.genre}</span>}
+            {errors.genre && (
+              <span className="error-message">{errors.genre}</span>
+            )}
           </div>
         </div>
 
@@ -220,7 +226,9 @@ export default function BookForm() {
               className={errors.quantity ? "error" : ""}
               min="1"
             />
-            {errors.quantity && <span className="error-message">{errors.quantity}</span>}
+            {errors.quantity && (
+              <span className="error-message">{errors.quantity}</span>
+            )}
           </div>
 
           {/* Thêm input Ảnh */}
@@ -228,7 +236,11 @@ export default function BookForm() {
             <label>Ảnh bìa:</label>
             <input type="file" accept="image/*" onChange={handleImageUpload} />
             {formData.image && (
-               <img src={formData.image} alt="Preview" style={{width: 60, marginTop: 10}} />
+              <img
+                src={formData.image}
+                alt="Preview"
+                style={{ width: 60, marginTop: 10 }}
+              />
             )}
           </div>
         </div>
@@ -246,11 +258,19 @@ export default function BookForm() {
         </div>
 
         <div className="form-actions">
-          <button type="button" className="cancel-btn" onClick={() => navigate("/manage/books")}>
+          <button
+            type="button"
+            className="cancel-btn"
+            onClick={() => navigate("/manage/books")}
+          >
             Hủy
           </button>
           <button type="submit" className="submit-btn" disabled={isSubmitting}>
-            {isSubmitting ? "Đang lưu..." : (isEditMode ? "Cập nhật" : "Thêm sách")}
+            {isSubmitting
+              ? "Đang lưu..."
+              : isEditMode
+              ? "Cập nhật"
+              : "Thêm sách"}
           </button>
         </div>
       </form>

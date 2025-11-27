@@ -11,6 +11,7 @@ import {
 export default function BooksPage() {
   const { data: bookData, isLoading, isError, error } = useGetBook();
   const books = bookData || []; //đề phòng lỗi server
+  console.log(books);
 
   // Gọi Hook Xóa
   const { mutate: deleteBook } = useDeleteBook();
@@ -112,7 +113,7 @@ export default function BooksPage() {
         <div className="search-box">
           <input
             type="text"
-            placeholder="Tìm kiếm theo tên, tác giả, mã sách, thể loại..."
+            placeholder="Tìm kiếm theo tên sách hoặc tác giả"
             value={searchTerm}
             onChange={handleSearchChange}
             className="search-input"
@@ -159,7 +160,10 @@ export default function BooksPage() {
                   <td className="book-code">{book.bookCode}</td>
                   <td className="col-image">
                     <img
-                      src={book.image || "https://via.placeholder.com/150"}
+                      src={
+                        book.image ||
+                        `https://ui-avatars.com/api/?name=${book.title}&background=random&color=fff&size=128`
+                      }
                       alt={book.title}
                       className="book-cover-thumb"
                     />
