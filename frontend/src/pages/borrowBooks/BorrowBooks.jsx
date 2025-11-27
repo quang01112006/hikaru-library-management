@@ -1,14 +1,14 @@
 import './BorrowBooks.css';
 import { useState, useEffect } from "react";
 import { useGetBorrowHistory, useCreateBorrow, useReturnBook } from "../../hooks/useBorrow";
-import { useGetBook } from "../../hooks/useBook";
+import { useGetBook } from "../../hooks/useBook"; // Sửa thành useGetBook
 import { useGetReaders } from "../../hooks/useReader";
 
 export default function ManageBorrows() {
   const { data: borrowsData, isLoading: borrowsLoading, error: borrowsError, refetch } = useGetBorrowHistory();
-  const { mutateAsync: createBorrow, isPending: isCreating } = useCreateBorrow();
-  const { mutateAsync: returnBook, isPending: isReturning } = useReturnBook();
-  const { data: booksData, isLoading: booksLoading } = useGetBook();
+  const { mutateAsync: createBorrow, isLoading: isCreating } = useCreateBorrow();
+  const { mutateAsync: returnBook, isLoading: isReturning } = useReturnBook();
+  const { data: booksData, isLoading: booksLoading } = useGetBook(); // Sửa thành useGetBook
   const { data: readersData, isLoading: readersLoading } = useGetReaders();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -131,6 +131,7 @@ export default function ManageBorrows() {
     }));
   };
 
+  // Lọc sách có sẵn (availableQuantity > 0)
   const availableBooks = books.filter(book => book.availableQuantity > 0);
 
   // Format ngày tháng
@@ -230,9 +231,9 @@ export default function ManageBorrows() {
                   </td>
                   <td className="borrow-book">
                     <div className="book-info">
-                      {borrow.book?.coverImage && (
+                      {borrow.book?.image && (
                         <img 
-                          src={borrow.book.coverImage} 
+                          src={borrow.book.image} 
                           alt={borrow.book.title}
                           className="book-cover"
                         />
@@ -333,7 +334,7 @@ export default function ManageBorrows() {
                   <option value="">{readersLoading ? "Đang tải..." : "Chọn bạn đọc"}</option>
                   {readers.map(reader => (
                     <option key={reader._id} value={reader._id}>
-                      {reader.name} - {reader.code}
+                      {reader.name} - {reader.readerCode}
                     </option>
                   ))}
                 </select>
@@ -351,7 +352,7 @@ export default function ManageBorrows() {
                   <option value="">{booksLoading ? "Đang tải..." : "Chọn sách"}</option>
                   {availableBooks.map(book => (
                     <option key={book._id} value={book._id}>
-                      {book.title} - {book.code} (Còn: {book.availableQuantity})
+                      {book.title} - {book.bookCode} (Còn: {book.availableQuantity})
                     </option>
                   ))}
                 </select>
