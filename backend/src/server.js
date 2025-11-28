@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import { protect } from "./middleware/authMiddleware.js";
 import cors from "cors";
 dotenv.config();
+import borrowRecordRoutes from "./routes/borrowRecordRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -26,6 +27,7 @@ app.use(protect);
 app.use("/api/books", bookRoutes);
 app.use("/api/readers", readerRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/borrows", borrowRecordRoutes);
 
 app.listen(PORT, () => {
   console.log("server chạy ở port 5001");
