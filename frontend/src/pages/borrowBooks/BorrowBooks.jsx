@@ -1,14 +1,14 @@
 import './BorrowBooks.css';
 import { useState, useEffect } from "react";
 import { useGetBorrowHistory, useCreateBorrow, useReturnBook } from "../../hooks/useBorrow";
-import { useGetBook } from "../../hooks/useBook";
+import { useGetBook } from "../../hooks/useBook"; // Sửa thành useGetBook
 import { useGetReaders } from "../../hooks/useReader";
 
 export default function ManageBorrows() {
   const { data: borrowsData, isLoading: borrowsLoading, error: borrowsError, refetch } = useGetBorrowHistory();
   const { mutateAsync: createBorrow, isLoading: isCreating } = useCreateBorrow();
   const { mutateAsync: returnBook, isLoading: isReturning } = useReturnBook();
-  const { data: booksData, isLoading: booksLoading } = useGetBook();
+  const { data: booksData, isLoading: booksLoading } = useGetBook(); // Sửa thành useGetBook
   const { data: readersData, isLoading: readersLoading } = useGetReaders();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -308,46 +308,55 @@ export default function ManageBorrows() {
         </div>
       )}
 
-{showModal && (
-  <div className="modal">
-    <div className="modal-content">
-      <h2>Tạo Phiếu Mượn Mới</h2>
-      <form onSubmit={handleCreateBorrow}>
-        <div className="form-group">
-          <label>Bạn Đọc *</label>
-          <select
-            name="reader"
-            value={newBorrow.reader}
-            onChange={handleInputChange}
-            disabled={readersLoading}
-            required
-          >
-            <option value="">{readersLoading ? "Đang tải..." : "Chọn bạn đọc"}</option>
-            {readers.map(reader => (
-              <option key={reader._id} value={reader._id}>
-                {reader.name} - {reader.readerCode}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Modal tạo phiếu mượn */}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2>Tạo Phiếu Mượn Mới</h2>
+              <button 
+                className="close-btn"
+                onClick={() => setShowModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            <form onSubmit={handleCreateBorrow} className="modal-form">
+              <div className="form-group">
+                <label>Bạn Đọc *</label>
+                <select
+                  name="reader"
+                  value={newBorrow.reader}
+                  onChange={handleInputChange}
+                  disabled={readersLoading}
+                  required
+                >
+                  <option value="">{readersLoading ? "Đang tải..." : "Chọn bạn đọc"}</option>
+                  {readers.map(reader => (
+                    <option key={reader._id} value={reader._id}>
+                      {reader.name} - {reader.readerCode}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-        <div className="form-group">
-          <label>Sách *</label>
-          <select
-            name="book"
-            value={newBorrow.book}
-            onChange={handleInputChange}
-            disabled={booksLoading}
-            required
-          >
-            <option value="">{booksLoading ? "Đang tải..." : "Chọn sách"}</option>
-            {availableBooks.map(book => (
-              <option key={book._id} value={book._id}>
-                {book.title} - {book.bookCode} (Còn: {book.availableQuantity})
-              </option>
-            ))}
-          </select>
-        </div>
+              <div className="form-group">
+                <label>Sách *</label>
+                <select
+                  name="book"
+                  value={newBorrow.book}
+                  onChange={handleInputChange}
+                  disabled={booksLoading}
+                  required
+                >
+                  <option value="">{booksLoading ? "Đang tải..." : "Chọn sách"}</option>
+                  {availableBooks.map(book => (
+                    <option key={book._id} value={book._id}>
+                      {book.title} - {book.bookCode} (Còn: {book.availableQuantity})
+                    </option>
+                  ))}
+                </select>
+              </div>
 
         <div className="form-group">
           <label>Ngày Hẹn Trả *</label>
