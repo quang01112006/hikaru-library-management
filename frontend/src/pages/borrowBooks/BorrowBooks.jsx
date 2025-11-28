@@ -358,38 +358,38 @@ export default function ManageBorrows() {
                 </select>
               </div>
 
-              <div className="form-group">
-                <label>Ngày Hẹn Trả *</label>
-                <input
-                  type="date"
-                  name="dueDate"
-                  value={newBorrow.dueDate}
-                  onChange={handleInputChange}
-                  min={getMinDate()}
-                  required
-                />
-              </div>
-
-              <div className="modal-actions">
-                <button 
-                  type="button" 
-                  className="cancel-btn"
-                  onClick={() => setShowModal(false)}
-                >
-                  Hủy
-                </button>
-                <button 
-                  type="submit" 
-                  className="submit-btn"
-                  disabled={isCreating || booksLoading || readersLoading}
-                >
-                  {isCreating ? "Đang xử lý..." : "Tạo Phiếu"}
-                </button>
-              </div>
-            </form>
-          </div>
+        <div className="form-group">
+          <label>Ngày Hẹn Trả *</label>
+          <input
+            type="date"
+            name="dueDate"
+            value={newBorrow.dueDate}
+            onChange={handleInputChange}
+            min={getMinDate()}
+            required
+          />
         </div>
-      )}
+
+        <div className="modal-actions">
+          <button 
+            type="button" 
+            className="btn-cancel"
+            onClick={() => setShowModal(false)}
+          >
+            Hủy
+          </button>
+          <button 
+            type="submit" 
+            className="btn-save"
+            disabled={isCreating || booksLoading || readersLoading}
+          >
+            {isCreating ? "Đang xử lý..." : "Tạo Phiếu"}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
     </div>
   );
 }
