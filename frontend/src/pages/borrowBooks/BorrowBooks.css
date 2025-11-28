@@ -10,7 +10,7 @@
   align-items: center;
   margin-bottom: 2rem;
 }
-
+ 
 .borrows-header h1 {
   color: var(--n-900);
   font-size: var(--h1-font-size);
@@ -232,137 +232,116 @@
   font-style: italic;
 }
 
-/* Modal */
-.modal-overlay {
+/* Modal - Khung tạo phiếu mượn */
+.modal {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(3px);
 }
 
-.modal {
-  background: white;
-  border-radius: 12px;
-  padding: 0;
-  width: 90%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+.modal-content {
+  background: #ffffff;
+  padding: 30px 26px;
+  border-radius: 14px;
+  width: 420px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  animation: fadeIn 0.2s ease;
+  font-size: 17px;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--n-300);
+/* Tiêu đề modal */
+.modal-content h2 {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
-.modal-header h2 {
-  color: var(--n-900);
-  font-size: var(--h2-font-size);
-  margin: 0;
-  font-family: "Poppins", sans-serif;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--n-500);
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-}
-
-.close-btn:hover {
-  background: var(--n-100);
-  color: var(--n-700);
-}
-
-.modal-form {
-  padding: 1.5rem;
-}
-
+/* Form group */
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 16px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
-  color: var(--n-700);
+  margin-bottom: 6px;
   font-weight: 500;
-  font-family: "Poppins", sans-serif;
+  color: #333;
 }
 
-.form-group select,
-.form-group input {
+/* Input đẹp và bo góc */
+.modal-content input,
+.modal-content select {
   width: 100%;
-  padding: 0.75rem;
-  border: 2px solid var(--n-300);
-  border-radius: 6px;
-  font-size: var(--p-font-size);
-  font-family: "Roboto", sans-serif;
-  transition: border-color 0.2s;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: border 0.15s;
+  box-sizing: border-box;
 }
 
-.form-group select:focus,
-.form-group input:focus {
+.modal-content input:focus,
+.modal-content select:focus {
   outline: none;
-  border-color: var(--p-500);
+  border-color: #4da3ff;
 }
 
+/* Actions */
 .modal-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 20px;
 }
 
-.cancel-btn {
-  padding: 0.75rem 1.5rem;
-  border: 2px solid var(--n-300);
-  background: white;
-  color: var(--n-700);
-  border-radius: 6px;
-  font-family: "Roboto", sans-serif;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.cancel-btn:hover {
-  background: var(--n-100);
-  border-color: var(--n-400);
-}
-
-.submit-btn {
-  padding: 0.75rem 1.5rem;
+.modal-actions button {
+  padding: 10px 20px;
+  border-radius: 10px;
   border: none;
-  background: var(--p-500);
-  color: white;
-  border-radius: 6px;
-  font-family: "Roboto", sans-serif;
-  font-weight: 500;
+  font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  min-width: 100px;
 }
 
-.submit-btn:hover {
-  background: var(--p-700);
+/* nút Lưu */
+.modal-actions .btn-save {
+  background: #4da3ff;
+  color: white;
+  transition: background 0.15s;
+}
+
+.modal-actions .btn-save:hover {
+  background: #1a8cff;
+}
+
+.modal-actions .btn-save:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* nút Hủy */
+.modal-actions .btn-cancel {
+  background: #dcdcdc;
+  transition: background 0.15s;
+}
+
+.modal-actions .btn-cancel:hover {
+  background: #c2c2c2;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Phân trang */
