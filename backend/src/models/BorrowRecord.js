@@ -28,6 +28,11 @@ const borrowRecordSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    status: {
+      type: String,
+      enum: ["pending", "borrowing", "returned", "cancelled"],
+      default: "borrowing",
+    },
   },
   { timestamps: true }
 );

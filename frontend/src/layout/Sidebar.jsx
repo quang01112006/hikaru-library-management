@@ -14,6 +14,7 @@ import {
   FiBook,
   FiLogOut,
 } from "react-icons/fi";
+import logo from "../assets/images/hikaru-logo.png";
 const menuItems = [
   { path: "/", name: "Trang Chủ", icon: <FiHome /> },
   { path: "/return-borrow", name: "Mượn & Trả", icon: <FiCheckSquare /> },
@@ -29,7 +30,9 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
     <div className="sidebar-container">
       {/*=========== logo + button========== */}
       <div className="sidebar-header">
-        <div className="logo-text">Logo</div>
+        <div className="logo-text">
+          <img src={logo} alt="logo" />{" "}
+        </div>
         <button className="toggle-btn" onClick={toggleSidebar}>
           {isCollapsed ? (
             <TbLayoutSidebarLeftExpand />

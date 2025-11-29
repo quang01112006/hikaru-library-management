@@ -1,0 +1,125 @@
+.history-page {
+  padding: 20px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 80vh;
+}
+
+.history-header h1 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.history-header p {
+  color: #7f8c8d;
+  margin-bottom: 30px;
+}
+
+.history-loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* --- CONTAINER & TABLE --- */
+.history-table-container {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  overflow-x: auto; /* Responsive cho bảng */
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history-table th {
+  text-align: left;
+  padding: 15px;
+  border-bottom: 2px solid #eee;
+  color: #444;
+  font-weight: 600;
+}
+
+.history-table td {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+  color: #333;
+}
+
+.history-table tr:last-child td {
+  border-bottom: none;
+}
+
+.history-no-data {
+  text-align: center;
+  padding: 40px !important;
+  color: #888;
+  font-style: italic;
+}
+
+/* --- BOOK INFO --- */
+.history-book-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.history-book-cover {
+  width: 45px;
+  height: 65px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.history-book-title {
+  font-weight: bold;
+  font-size: 0.95rem;
+  color: #2c3e50;
+  margin-bottom: 4px;
+}
+
+.history-book-author {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+/* --- BADGES (Đã đổi tên class để không xung đột) --- */
+.history-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.history-badge.pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.history-badge.returned {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.history-badge.overdue {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.history-badge.borrowing {
+  background-color: #cce5ff;
+  color: #004085;
+  border: 1px solid #b8daff;
+}

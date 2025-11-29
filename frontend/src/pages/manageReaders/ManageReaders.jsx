@@ -1,16 +1,19 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./ManageReaders.css";
+import ReaderHistoryModal from "../../components/ReaderHistoryModal";
 import {
   useGetReaders,
   useAddReader,
   useDeleteReader,
   useUpdateReader,
 } from "../../hooks/useReader";
+import Loading from "../../components/loading/Loading";
 const ManageReaders = () => {
   // lấy data
   const { data: readerData, isError, isLoading } = useGetReaders();
   const readers = readerData || [];
+  const [historyReader, setHistoryReader] = useState(null);
 
   // Gọi các Hook Hành động
   const { mutate: addReader } = useAddReader();
@@ -182,8 +185,7 @@ const ManageReaders = () => {
   };
 
   // --- LOADING UI ---
-  if (isLoading)
-    return <div className="loading">⏳ Đang tải danh sách bạn đọc...</div>;
+  if (isLoading) return <Loading />;
   if (isError) return <div className="error">❌ Lỗi tải dữ liệu!</div>;
 
   return (
@@ -267,6 +269,13 @@ const ManageReaders = () => {
                       className="delete-btn"
                     >
                       Xóa
+                    </button>
+                    <button
+                      className="edit-btn"
+                      style={{ backgroundColor: "#3498db", marginRight: 5 }}
+                      onClick={() => setHistoryReader(reader)} // Set state để mở modal
+                    >
+                      📜 Lịch sử
                     </button>
                   </td>
                 </tr>
@@ -395,6 +404,12 @@ const ManageReaders = () => {
             </form>
           </div>
         </div>
+      )}
+      {historyReader && (
+        <ReaderHistoryModal
+          reader={historyReader}
+          onClose={() => setHistoryReader(null)}
+        />
       )}
     </div>
   );

@@ -23,6 +23,10 @@
   transition: all 0.2s ease-in-out;
   white-space: nowrap;
   overflow: hidden;
+  flex: 1;
+}
+.logo-text img {
+  width: 80%;
 }
 .toggle-btn {
   background: transparent;

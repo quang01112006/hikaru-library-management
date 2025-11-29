@@ -71,7 +71,7 @@
   transition: 0.3s ease all;
 }
 .input-box input:focus ~ label,
-.input-box input:valid ~ label {
+.input-box input:not(:placeholder-shown) ~ label {
   top: -10px;
   font-size: var(--caption-font-size);
   color: var(--p-700);
@@ -131,8 +131,117 @@
   align-items: center;
   clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
 }
+
+.brand-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  /* Đẩy nội dung sang phải một chút để tránh cái vát chéo (clip-path) */
+  padding-left: 40px;
+}
+
+.login-logo-img {
+  width: 200px; 
+  height: auto; 
+  margin-bottom: 15px;
+
+  
+  filter: drop-shadow(0 8px 10px rgba(1, 120, 255, 0.5));
+
+ 
+  animation: floatLogo 4s ease-in-out infinite;
+}
+
 .brand-logo {
   font-size: 2.5rem;
-  font-weight: bold;
+  font-weight: 800;
   color: var(--n-100);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.brand-content p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  margin-top: 5px;
+  font-weight: 400;
+}
+
+/* Animation bay bay */
+@keyframes floatLogo {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Responsive Mobile: Tắt vát chéo và căn giữa lại */
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .login-container-right {
+    clip-path: none;
+    padding: 40px 20px;
+    flex-basis: auto;
+  }
+
+  .brand-content {
+    padding-left: 0; 
+  }
+
+  .login-logo-img {
+    width: 80px; 
+  }
+}
+
+/* ===================== TABS ====================== */
+.login-tabs {
+  display: flex;
+  width: 100%;
+  margin-bottom: 25px;
+  background: var(--n-200);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.login-tabs .tab {
+  flex: 1;
+  text-align: center;
+  padding: 12px 0;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--n-600);
+  transition: 0.25s ease;
+  position: relative;
+}
+
+.login-tabs .tab:hover {
+  background: var(--n-300);
+}
+
+.login-tabs .tab.active {
+  color: var(--p-900);
+  background: var(--n-100);
+}
+
+.login-tabs .tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: var(--main-gradient-color);
 }

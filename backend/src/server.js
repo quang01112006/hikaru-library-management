@@ -21,11 +21,11 @@ connectDB();
 
 // public routes
 app.use("/api/users", userRoutes);
-
+app.use("/api/readers", readerRoutes);
 //private routes
 app.use(protect);
 app.use("/api/books", bookRoutes);
-app.use("/api/readers", readerRoutes);
+
 app.use("/api/categories", categoryRoutes);
 app.use("/api/borrows", borrowRecordRoutes);
 

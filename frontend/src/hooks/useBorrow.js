@@ -3,6 +3,8 @@ import {
   getBorrowHistoryApi,
   createBorrowRecordApi,
   returnBookApi,
+  approveBorrowApi,
+  getBorrowsByReaderIdApi,
 } from "../service/borrowService";
 export const useGetBorrowHistory = () => {
   return useQuery({
@@ -30,5 +32,22 @@ export const useReturnBook = () => {
       queryClient.invalidateQueries({ queryKey: ["borrows"] });
       queryClient.invalidateQueries({ queryKey: ["books"] });
     },
+  });
+};
+export const useApproveBorrow = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: approveBorrowApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["borrows"] });
+      queryClient.invalidateQueries({ queryKey: ["books"] });
+    },
+  });
+};
+export const useGetBorrowsByReader = (readerId) => {
+  return useQuery({
+    queryKey: ["borrows", "reader", readerId], // Key cache riêng cho từng ông
+    queryFn: () => getBorrowsByReaderIdApi(readerId),
+    enabled: !!readerId, // CHỈ CHẠY KHI CÓ ID
   });
 };

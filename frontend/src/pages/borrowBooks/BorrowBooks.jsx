@@ -1,36 +1,58 @@
-import './BorrowBooks.css';
-import { useState, useEffect } from "react";
-import { useGetBorrowHistory, useCreateBorrow, useReturnBook } from "../../hooks/useBorrow";
+import "./BorrowBooks.css";
+import { useState } from "react";
+import {
+  useGetBorrowHistory,
+  useCreateBorrow,
+  useReturnBook,
+  useApproveBorrow,
+} from "../../hooks/useBorrow";
 import { useGetBook } from "../../hooks/useBook"; // Sửa thành useGetBook
 import { useGetReaders } from "../../hooks/useReader";
 
 export default function ManageBorrows() {
-  const { data: borrowsData, isLoading: borrowsLoading, error: borrowsError, refetch } = useGetBorrowHistory();
-  const { mutateAsync: createBorrow, isLoading: isCreating } = useCreateBorrow();
+  const {
+    data: borrowsData,
+    isLoading: borrowsLoading,
+    error: borrowsError,
+    refetch,
+  } = useGetBorrowHistory();
+  const { mutateAsync: createBorrow, isLoading: isCreating } =
+    useCreateBorrow();
   const { mutateAsync: returnBook, isLoading: isReturning } = useReturnBook();
   const { data: booksData, isLoading: booksLoading } = useGetBook(); // Sửa thành useGetBook
   const { data: readersData, isLoading: readersLoading } = useGetReaders();
+  const { mutate: approveBorrow, isPending: isApproving } = useApproveBorrow();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [newBorrow, setNewBorrow] = useState({
-    reader: "",
-    book: "",
-    dueDate: ""
+    readerId: "",
+    bookId: "",
+    dueDate: "",
   });
 
   const borrowsPerPage = 10;
 
   // Extract data từ React Query
-  const borrows = Array.isArray(borrowsData) ? borrowsData : borrowsData?.data || [];
+  const borrows = Array.isArray(borrowsData)
+    ? borrowsData
+    : borrowsData?.data || [];
   const books = Array.isArray(booksData) ? booksData : booksData?.data || [];
-  const readers = Array.isArray(readersData) ? readersData : readersData?.data || [];
+  const readers = Array.isArray(readersData)
+    ? readersData
+    : readersData?.data || [];
 
   // Lọc phiếu mượn theo từ khóa tìm kiếm
-  const filteredBorrows = borrows.filter(borrow => {
+  const filteredBorrows = borrows.filter((borrow) => {
     const searchLower = searchTerm.toLowerCase();
+    const statusText =
+      borrow.status === "pending"
+        ? "chờ duyệt"
+        : borrow.status === "borrowing"
+        ? "đang mượn"
+        : "đã trả";
     const readerName = borrow.reader?.name?.toLowerCase() || "";
     const readerCode = borrow.reader?.readerCode?.toLowerCase() || "";
     const bookTitle = borrow.book?.title?.toLowerCase() || "";
@@ -49,13 +71,13 @@ export default function ManageBorrows() {
   // Sắp xếp
   const sortedBorrows = [...filteredBorrows].sort((a, b) => {
     if (!sortConfig.key) return 0;
-    
+
     let aValue, bValue;
 
-    if (sortConfig.key === 'reader') {
+    if (sortConfig.key === "reader") {
       aValue = a.reader?.name || "";
       bValue = b.reader?.name || "";
-    } else if (sortConfig.key === 'book') {
+    } else if (sortConfig.key === "book") {
       aValue = a.book?.title || "";
       bValue = b.book?.title || "";
     } else {
@@ -64,10 +86,10 @@ export default function ManageBorrows() {
     }
 
     if (aValue < bValue) {
-      return sortConfig.direction === 'asc' ? -1 : 1;
+      return sortConfig.direction === "asc" ? -1 : 1;
     }
     if (aValue > bValue) {
-      return sortConfig.direction === 'asc' ? 1 : -1;
+      return sortConfig.direction === "asc" ? 1 : -1;
     }
     return 0;
   });
@@ -75,20 +97,23 @@ export default function ManageBorrows() {
   // Tính toán phiếu mượn cho trang hiện tại
   const indexOfLastBorrow = currentPage * borrowsPerPage;
   const indexOfFirstBorrow = indexOfLastBorrow - borrowsPerPage;
-  const currentBorrows = sortedBorrows.slice(indexOfFirstBorrow, indexOfLastBorrow);
+  const currentBorrows = sortedBorrows.slice(
+    indexOfFirstBorrow,
+    indexOfLastBorrow
+  );
   const totalPages = Math.ceil(sortedBorrows.length / borrowsPerPage);
 
   const handleSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
   };
 
   const getSortIcon = (key) => {
-    if (sortConfig.key !== key) return '↕️';
-    return sortConfig.direction === 'asc' ? '↑' : '↓';
+    if (sortConfig.key !== key) return "↕️";
+    return sortConfig.direction === "asc" ? "↑" : "↓";
   };
 
   const handlePageChange = (pageNumber) => {
@@ -98,6 +123,16 @@ export default function ManageBorrows() {
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1);
+  };
+
+  //  Hàm xử lý DUYỆT
+  const handleApprove = (borrowId) => {
+    if (window.confirm("Xác nhận DUYỆT phiếu mượn này? (Kho sẽ bị trừ 1)")) {
+      approveBorrow(borrowId, {
+        onSuccess: () => alert("Duyệt thành công! Đã giao sách."),
+        onError: (err) => alert("Lỗi: " + err.response?.data?.message),
+      });
+    }
   };
 
   const handleReturnBook = async (borrowId) => {
@@ -116,7 +151,7 @@ export default function ManageBorrows() {
     try {
       await createBorrow(newBorrow);
       setShowModal(false);
-      setNewBorrow({ reader: "", book: "", dueDate: "" });
+      setNewBorrow({ readerId: "", bookId: "", dueDate: "" });
     } catch (error) {
       console.error("Error creating borrow:", error);
       alert("Có lỗi xảy ra khi tạo phiếu mượn");
@@ -125,18 +160,18 @@ export default function ManageBorrows() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewBorrow(prev => ({
+    setNewBorrow((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   // Lọc sách có sẵn (availableQuantity > 0)
-  const availableBooks = books.filter(book => book.availableQuantity > 0);
+  const availableBooks = books.filter((book) => book.availableQuantity > 0);
 
   // Format ngày tháng
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('vi-VN');
+    return new Date(dateString).toLocaleDateString("vi-VN");
   };
 
   // Kiểm tra quá hạn
@@ -146,33 +181,38 @@ export default function ManageBorrows() {
   };
 
   const getStatusBadge = (borrow) => {
-    if (borrow.returnDate) {
-      return <span className="status-badge returned">Đã trả</span>;
-    } else if (isOverdue(borrow.dueDate, borrow.returnDate)) {
-      return <span className="status-badge overdue">Quá hạn</span>;
-    } else {
-      return <span className="status-badge borrowing">Đang mượn</span>;
+    // Ưu tiên check status từ DB
+    if (borrow.status === "pending") {
+      return <span className="borrow-badge pending">⏳ Chờ duyệt</span>;
     }
+    if (borrow.status === "returned" || borrow.returnDate) {
+      return <span className="borrow-badge returned">Đã trả</span>;
+    }
+
+    // Nếu đang mượn, check xem có quá hạn không
+    const isOverdue = new Date(borrow.dueDate) < new Date();
+    if (isOverdue) {
+      return <span className="borrow-badge overdue">Quá hạn</span>;
+    }
+    return <span className="borrow-badge borrowing">Đang mượn</span>;
   };
 
   // Tính ngày tối thiểu cho date picker (ngày mai)
   const getMinDate = () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
+    return tomorrow.toISOString().split("T")[0];
   };
 
   if (borrowsLoading) return <div className="loading">Đang tải...</div>;
-  if (borrowsError) return <div className="error">Có lỗi xảy ra: {borrowsError.message}</div>;
+  if (borrowsError)
+    return <div className="error">Có lỗi xảy ra: {borrowsError.message}</div>;
 
   return (
     <div className="borrows-page">
       <div className="borrows-header">
         <h1>Quản Lý Mượn Trả</h1>
-        <button 
-          className="add-borrow-btn" 
-          onClick={() => setShowModal(true)}
-        >
+        <button className="add-borrow-btn" onClick={() => setShowModal(true)}>
           Tạo Phiếu Mượn
         </button>
       </div>
@@ -199,20 +239,20 @@ export default function ManageBorrows() {
         <table className="borrows-table">
           <thead>
             <tr>
-              <th onClick={() => handleSort('_id')} className="sortable">
-                Mã Phiếu {getSortIcon('_id')}
+              <th onClick={() => handleSort("_id")} className="sortable">
+                Mã Phiếu {getSortIcon("_id")}
               </th>
-              <th onClick={() => handleSort('reader')} className="sortable">
-                Bạn Đọc {getSortIcon('reader')}
+              <th onClick={() => handleSort("reader")} className="sortable">
+                Bạn Đọc {getSortIcon("reader")}
               </th>
-              <th onClick={() => handleSort('book')} className="sortable">
-                Sách {getSortIcon('book')}
+              <th onClick={() => handleSort("book")} className="sortable">
+                Sách {getSortIcon("book")}
               </th>
-              <th onClick={() => handleSort('borrowDate')} className="sortable">
-                Ngày Mượn {getSortIcon('borrowDate')}
+              <th onClick={() => handleSort("borrowDate")} className="sortable">
+                Ngày Mượn {getSortIcon("borrowDate")}
               </th>
-              <th onClick={() => handleSort('dueDate')} className="sortable">
-                Hạn Trả {getSortIcon('dueDate')}
+              <th onClick={() => handleSort("dueDate")} className="sortable">
+                Hạn Trả {getSortIcon("dueDate")}
               </th>
               <th>Trạng Thái</th>
               <th>Thao tác</th>
@@ -220,20 +260,22 @@ export default function ManageBorrows() {
           </thead>
           <tbody>
             {currentBorrows.length > 0 ? (
-              currentBorrows.map(borrow => (
+              currentBorrows.map((borrow) => (
                 <tr key={borrow._id} className="borrow-row">
                   <td className="borrow-code">
                     #{borrow._id?.slice(-6).toUpperCase()}
                   </td>
                   <td className="borrow-reader">
                     <strong>{borrow.reader?.name}</strong>
-                    <div className="reader-code">{borrow.reader?.readerCode}</div>
+                    <div className="reader-code">
+                      {borrow.reader?.readerCode}
+                    </div>
                   </td>
                   <td className="borrow-book">
                     <div className="book-info">
                       {borrow.book?.image && (
-                        <img 
-                          src={borrow.book.image} 
+                        <img
+                          src={borrow.book.image}
                           alt={borrow.book.title}
                           className="book-cover"
                         />
@@ -247,15 +289,21 @@ export default function ManageBorrows() {
                   <td className="borrow-date">
                     {formatDate(borrow.borrowDate)}
                   </td>
-                  <td className="due-date">
-                    {formatDate(borrow.dueDate)}
-                  </td>
-                  <td className="status">
-                    {getStatusBadge(borrow)}
-                  </td>
+                  <td className="due-date">{formatDate(borrow.dueDate)}</td>
+                  <td className="status">{getStatusBadge(borrow)}</td>
                   <td className="borrow-actions">
+                    {/* Nếu đang CHỜ DUYỆT -> Hiện nút DUYỆT */}
+                    {borrow.status === "pending" && (
+                      <button
+                        className="approve-btn"
+                        onClick={() => handleApprove(borrow._id)}
+                        disabled={isApproving}
+                      >
+                        {isApproving ? "..." : "✅ Duyệt"}
+                      </button>
+                    )}
                     {!borrow.returnDate && (
-                      <button 
+                      <button
                         className="return-btn"
                         onClick={() => handleReturnBook(borrow._id)}
                         disabled={isReturning}
@@ -269,7 +317,9 @@ export default function ManageBorrows() {
             ) : (
               <tr>
                 <td colSpan="7" className="no-borrows">
-                  {borrows.length === 0 ? 'Chưa có phiếu mượn nào.' : 'Không tìm thấy phiếu mượn phù hợp'}
+                  {borrows.length === 0
+                    ? "Chưa có phiếu mượn nào."
+                    : "Không tìm thấy phiếu mượn phù hợp"}
                 </td>
               </tr>
             )}
@@ -280,25 +330,27 @@ export default function ManageBorrows() {
       {/* Phân trang */}
       {totalPages > 1 && (
         <div className="pagination">
-          <button 
+          <button
             className="pagination-btn"
             disabled={currentPage === 1}
             onClick={() => handlePageChange(currentPage - 1)}
           >
             ← Trước
           </button>
-          
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
-              className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
+              className={`pagination-btn ${
+                currentPage === page ? "active" : ""
+              }`}
               onClick={() => handlePageChange(page)}
             >
               {page}
             </button>
           ))}
-          
-          <button 
+
+          <button
             className="pagination-btn"
             disabled={currentPage === totalPages}
             onClick={() => handlePageChange(currentPage + 1)}
@@ -310,29 +362,31 @@ export default function ManageBorrows() {
 
       {/* Modal tạo phiếu mượn */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
+        <div className="borrow-modal-overlay">
+          <div className="borrow-modal-content">
+            <div className="borrow-modal-header">
               <h2>Tạo Phiếu Mượn Mới</h2>
-              <button 
-                className="close-btn"
+              <button
+                className="borrow-close-btn"
                 onClick={() => setShowModal(false)}
               >
                 ×
               </button>
             </div>
-            <form onSubmit={handleCreateBorrow} className="modal-form">
+            <form onSubmit={handleCreateBorrow} className="borrow-modal-form">
               <div className="form-group">
                 <label>Bạn Đọc *</label>
                 <select
-                  name="reader"
-                  value={newBorrow.reader}
+                  name="readerId"
+                  value={newBorrow.readerId}
                   onChange={handleInputChange}
                   disabled={readersLoading}
                   required
                 >
-                  <option value="">{readersLoading ? "Đang tải..." : "Chọn bạn đọc"}</option>
-                  {readers.map(reader => (
+                  <option value="">
+                    {readersLoading ? "Đang tải..." : "Chọn bạn đọc"}
+                  </option>
+                  {readers.map((reader) => (
                     <option key={reader._id} value={reader._id}>
                       {reader.name} - {reader.readerCode}
                     </option>
@@ -343,53 +397,56 @@ export default function ManageBorrows() {
               <div className="form-group">
                 <label>Sách *</label>
                 <select
-                  name="book"
-                  value={newBorrow.book}
+                  name="bookId"
+                  value={newBorrow.bookId}
                   onChange={handleInputChange}
                   disabled={booksLoading}
                   required
                 >
-                  <option value="">{booksLoading ? "Đang tải..." : "Chọn sách"}</option>
-                  {availableBooks.map(book => (
+                  <option value="">
+                    {booksLoading ? "Đang tải..." : "Chọn sách"}
+                  </option>
+                  {availableBooks.map((book) => (
                     <option key={book._id} value={book._id}>
-                      {book.title} - {book.bookCode} (Còn: {book.availableQuantity})
+                      {book.title} - {book.bookCode} (Còn:{" "}
+                      {book.availableQuantity})
                     </option>
                   ))}
                 </select>
               </div>
 
-        <div className="form-group">
-          <label>Ngày Hẹn Trả *</label>
-          <input
-            type="date"
-            name="dueDate"
-            value={newBorrow.dueDate}
-            onChange={handleInputChange}
-            min={getMinDate()}
-            required
-          />
-        </div>
+              <div className="form-group">
+                <label>Ngày Hẹn Trả *</label>
+                <input
+                  type="date"
+                  name="dueDate"
+                  value={newBorrow.dueDate}
+                  onChange={handleInputChange}
+                  min={getMinDate()}
+                  required
+                />
+              </div>
 
-        <div className="modal-actions">
-          <button 
-            type="button" 
-            className="btn-cancel"
-            onClick={() => setShowModal(false)}
-          >
-            Hủy
-          </button>
-          <button 
-            type="submit" 
-            className="btn-save"
-            disabled={isCreating || booksLoading || readersLoading}
-          >
-            {isCreating ? "Đang xử lý..." : "Tạo Phiếu"}
-          </button>
+              <div className="borrow-modal-actions">
+                <button
+                  type="button"
+                  className="borrow-btn-cancel"
+                  onClick={() => setShowModal(false)}
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="borrow-btn-save"
+                  disabled={isCreating || booksLoading || readersLoading}
+                >
+                  {isCreating ? "Đang xử lý..." : "Tạo Phiếu"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </form>
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 }
