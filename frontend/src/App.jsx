@@ -5,7 +5,7 @@ import Register from "./pages/login/Register";
 import Home from "./pages/home/Home";
 import BorrowBooks from "./pages/borrowBooks/BorrowBooks";
 import ManageCategories from "./pages/manageCategories/ManageCategories";
-import Layout from "./layout/LayoutTemp";
+import Layout from "./layout/Layout";
 // import Statistics from "./pages/statistics/Statistics";
 import ManageReaders from "./pages/manageReaders/ManageReaders";
 import ManageBooks from "./pages/manageBooks/ManageBooks";
