@@ -131,11 +131,8 @@ export const returnBook = async (req, res) => {
     const record = await BorrowRecord.findById(recordId).session(session);
     if (!record) throw new Error("Không tìm thấy phiếu mượn");
 
-    // Chỉ cho trả nếu đang 'borrowing'
     if (record.status !== "borrowing" || record.returnDate) {
-      throw new Error(
-        "Phiếu này không hợp lệ để trả (Chưa duyệt hoặc đã trả rồi)"
-      );
+      throw new Error("Phiếu này không hợp lệ để trả");
     }
 
     // Update phiếu
@@ -183,5 +180,25 @@ export const getBorrowsByReaderId = async (req, res) => {
     res.status(200).json(records);
   } catch (error) {
     res.status(500).json({ message: "Lỗi lấy lịch sử bạn đọc" });
+  }
+};
+
+export const cancelBorrow = async (req, res) => {
+  try {
+    const { recordId } = req.params; //lấy id từ url
+
+    const record = await BorrowRecord.findById(recordId);
+    if (!record) {
+      return res.status(404).json({ message: "Phiếu mượn không tồn tại" });
+    }
+    if (record.status !== "pending") {
+      return res
+        .status(400)
+        .json({ message: "Chỉ được hủy phiếu chưa được duyệt" });
+    }
+    await BorrowRecord.findByIdAndDelete(recordId);
+    res.status(200).json({ message: "Đã hủy phiếu mượn thành công." });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi hệ thống" });
   }
 };

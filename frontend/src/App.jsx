@@ -57,7 +57,7 @@ function App() {
           <Route path="/manage/books/add" element={<AddBook />} />
           <Route path="/manage/books/edit/:id" element={<AddBook />} />
           <Route path="/manage/readers" element={<ManageReaders />} />
-          <Route path="/stats" element={<Statistics />} />
+          {/* <Route path="/stats" element={<Statistics />} /> */}
           <Route path="/manage/users" element={<ManageUsers />} />
         </Route>
 

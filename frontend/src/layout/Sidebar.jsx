@@ -15,17 +15,27 @@ import {
   FiLogOut,
 } from "react-icons/fi";
 import logo from "../assets/images/hikaru-logo.png";
+import { useAuth } from "../context/AuthContext";
+
 const menuItems = [
   { path: "/", name: "Trang Chủ", icon: <FiHome /> },
   { path: "/return-borrow", name: "Mượn & Trả", icon: <FiCheckSquare /> },
   { path: "/manage/books", name: "Quản Lý Sách", icon: <FiBookOpen /> },
   { path: "/manage/categories", name: "Quản Lý Thể Loại", icon: <FiBook /> },
   { path: "/manage/readers", name: "Quản Lý Bạn Đọc", icon: <FiUsers /> },
-  { path: "/stats", name: "Thống Kê", icon: <FiPieChart /> },
+  // { path: "/stats", name: "Thống Kê", icon: <FiPieChart /> },
   { path: "/manage/users", name: "Quản lý nhân viên", icon: <FiUsers /> },
 ];
+
 export default function Sidebar({ isCollapsed, toggleSidebar }) {
   const handleLogout = useLogout();
+  const { user } = useAuth();
+  const filteredMenu = menuItems.filter((item) => {
+    if (item.path === "/manage/users") {
+      return user?.role === "admin";
+    }
+    return true;
+});
   return (
     <div className="sidebar-container">
       {/*=========== logo + button========== */}
@@ -44,7 +54,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
 
       {/*======== main menu =========== */}
 
-      {menuItems.map((item) => (
+      {filteredMenu.map((item) => (
         <NavLink
           key={item.path}
           to={item.path}

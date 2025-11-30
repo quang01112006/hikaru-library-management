@@ -2,11 +2,10 @@ import React from "react";
 import { useGetBorrowsByReader } from "../hooks/useBorrow";
 
 const ReaderHistoryModal = ({ reader, onClose }) => {
-  // Gọi Hook lấy dữ liệu của riêng ông reader này
   const { data: historyData, isLoading } = useGetBorrowsByReader(reader._id);
   const history = historyData || [];
 
-  // Helper format ngày
+  // format ngày
   const formatDate = (d) => new Date(d).toLocaleDateString("vi-VN");
 
   return (
@@ -24,7 +23,7 @@ const ReaderHistoryModal = ({ reader, onClose }) => {
             marginBottom: 20,
           }}
         >
-          <h2>📜 Lịch sử mượn: {reader.name}</h2>
+          <h2> Lịch sử mượn: {reader.name}</h2>
           <button className="close-btn" onClick={onClose}>
             ×
           </button>
@@ -32,7 +31,7 @@ const ReaderHistoryModal = ({ reader, onClose }) => {
 
         {isLoading ? (
           <div style={{ textAlign: "center", padding: 20 }}>
-            ⏳ Đang tải lịch sử...
+            Đang tải lịch sử...
           </div>
         ) : (
           <div
@@ -73,9 +72,7 @@ const ReaderHistoryModal = ({ reader, onClose }) => {
                             />
                           )}
                           <div>
-                            <div style={{ fontWeight: "bold" }}>
-                              {record.book?.title || "Sách đã xóa"}
-                            </div>
+                            <div>{record.book?.title || "Sách đã xóa"}</div>
                             <small>{record.book?.bookCode}</small>
                           </div>
                         </div>
@@ -90,13 +87,13 @@ const ReaderHistoryModal = ({ reader, onClose }) => {
                       <td>
                         {record.returnDate ? (
                           <span style={{ color: "green", fontWeight: "bold" }}>
-                            ✅ Đã trả
+                            Đã trả
                           </span>
                         ) : (
                           <span
                             style={{ color: "#e67e22", fontWeight: "bold" }}
                           >
-                            ⏳ Đang mượn
+                            Đang mượn
                           </span>
                         )}
                       </td>
@@ -127,7 +124,6 @@ const ReaderHistoryModal = ({ reader, onClose }) => {
           </button>
         </div>
       </div>
-      
     </div>
   );
 };

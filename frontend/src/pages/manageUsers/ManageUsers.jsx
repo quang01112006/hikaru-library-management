@@ -1,116 +1,59 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import "./ManageUsers.css";
-
+import { useAuth } from "../../context/AuthContext";
+import Loading from "../../components/loading/Loading";
 import {
   useGetUsers,
   useAddUser,
   useUpdateUser,
   useDeleteUser,
 } from "../../hooks/useUser";
-import Loading from "../../components/loading/Loading";
+import "./ManageUsers.css";
 
 const ManageUsers = () => {
-  // Lấy danh sách nhân viên từ API
+  // 1. Lấy thông tin người đang đăng nhập
+  const { user: currentUser } = useAuth();
+
   const { data: userData, isError, isLoading } = useGetUsers();
   const users = userData || [];
 
-  // Actions Hooks
   const { mutate: addUser } = useAddUser();
   const { mutate: updateUser } = useUpdateUser();
   const { mutate: deleteUser } = useDeleteUser();
 
-  // UI States
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [usersPerPage] = useState(7);
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-  const [sortConfig, setSortConfig] = useState({
-    key: null,
-    direction: "asc",
-  });
 
-  // Form State
   const [formData, setFormData] = useState({
     username: "",
-    fullName: "",
-    email: "",
-    phone: "",
-    role: "staff",
     password: "",
+    role: "librarian",
   });
 
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // SORT
-  const handleSort = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
-  };
-
-  const getSortIcon = (key) => {
-    if (sortConfig.key !== key) return "↕️";
-    return sortConfig.direction === "asc" ? "↑" : "↓";
-  };
-
-  const sortedUsers = [...users].sort((a, b) => {
-    if (!sortConfig.key) return 0;
-
-    const aVal = a[sortConfig.key];
-    const bVal = b[sortConfig.key];
-
-    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-    return 0;
-  });
-
-  // FILTER
-  const filteredUsers = sortedUsers.filter(
-    (u) =>
-      u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.phone.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter((u) =>
+    u.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // PAGINATION
-  const indexOfLast = currentPage * usersPerPage;
-  const indexOfFirst = indexOfLast - usersPerPage;
-  const currentUsers = filteredUsers.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-
-  // INPUT CHANGE
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // SUBMIT FORM
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (editingUser) {
-      // UPDATE USER
       updateUser(
         { id: editingUser._id, data: formData },
         {
           onSuccess: () => {
-            alert("Cập nhật nhân viên thành công!");
+            alert("Cập nhật thành công!");
             handleCloseForm();
           },
           onError: (err) => alert("Lỗi: " + err.response?.data?.message),
         }
       );
     } else {
-      // ADD USER
       addUser(formData, {
         onSuccess: () => {
           alert("Thêm nhân viên thành công!");
@@ -121,80 +64,53 @@ const ManageUsers = () => {
     }
   };
 
-  // EDIT
   const handleEdit = (user) => {
     setEditingUser(user);
-
     setFormData({
       username: user.username,
-      fullName: user.fullName,
-      email: user.email,
-      phone: user.phone,
-      role: user.role || "staff",
+      role: user.role,
       password: "",
     });
-
     setShowForm(true);
   };
 
-  // DELETE
   const handleDelete = (userId) => {
     if (window.confirm("Bạn có chắc muốn xóa nhân viên này?")) {
       deleteUser(userId, {
-        onSuccess: () => alert("Xóa nhân viên thành công!"),
+        onSuccess: () => alert("Đã xóa nhân viên!"),
         onError: (err) => alert("Lỗi: " + err.response?.data?.message),
       });
     }
   };
 
-  // OPEN FORM
-  const handleAddUser = () => {
-    setShowForm(true);
-    navigate(location.pathname, { state: { timestamp: Date.now() } });
-  };
-
-  // CLOSE
   const handleCloseForm = () => {
     setShowForm(false);
     setEditingUser(null);
-    setFormData({
-      username: "",
-      fullName: "",
-      email: "",
-      phone: "",
-      role: "staff",
-      password: "",
-    });
+    setFormData({ username: "", password: "", role: "librarian" });
   };
 
   if (isLoading) return <Loading />;
-  if (isError) return <div className="error">❌ Lỗi tải dữ liệu!</div>;
+  if (isError) return <div className="error">Lỗi tải dữ liệu!</div>;
 
   return (
-    <div className="users-page">
+    <div className="users-page fade-in">
       {/* HEADER */}
       <div className="users-header">
         <h1>Quản Lý Nhân Viên</h1>
-        <button onClick={handleAddUser} className="add-user-btn">
-          Thêm Nhân Viên
+        <button onClick={() => setShowForm(true)} className="btn-add-user">
+          + Thêm Nhân Viên
         </button>
       </div>
 
       {/* SEARCH */}
       <div className="search-container">
-        <div className="search-box">
-          <input
-            type="text"
-            placeholder="Tìm kiếm theo username, tên, email, SĐT..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-          <span className="search-icon">🔍</span>
-        </div>
-        <div className="search-results">
-          Tìm thấy {filteredUsers.length} nhân viên
-        </div>
+        <input
+          className="search-input"
+          type="text"
+          placeholder="Tìm kiếm theo username..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
       {/* TABLE */}
@@ -202,54 +118,48 @@ const ManageUsers = () => {
         <table className="users-table">
           <thead>
             <tr>
-              <th onClick={() => handleSort("username")} className="sortable">
-                Username {getSortIcon("username")}
-              </th>
-              <th onClick={() => handleSort("fullName")} className="sortable">
-                Họ tên {getSortIcon("fullName")}
-              </th>
-              <th onClick={() => handleSort("email")} className="sortable">
-                Email {getSortIcon("email")}
-              </th>
-              <th onClick={() => handleSort("phone")} className="sortable">
-                SĐT {getSortIcon("phone")}
-              </th>
-              <th onClick={() => handleSort("role")} className="sortable">
-                Vai trò {getSortIcon("role")}
-              </th>
-              <th>Thao tác</th>
+              <th>Username</th>
+              <th>Vai trò</th>
+              <th>Ngày tạo</th>
+              <th>Hành động</th>
             </tr>
           </thead>
-
           <tbody>
-            {currentUsers.length > 0 ? (
-              currentUsers.map((user) => (
-                <tr key={user._id}>
-                  <td>{user.username}</td>
-                  <td>{user.fullName}</td>
-                  <td>{user.email}</td>
-                  <td>{user.phone}</td>
-                  <td>{user.role}</td>
-                  <td>
+            {filteredUsers.map((u) => (
+              <tr key={u._id}>
+                <td>
+                  <strong>{u.username}</strong>
+                  {currentUser && u._id === currentUser._id && (
+                    <span className="you-badge">(Bạn)</span>
+                  )}
+                </td>
+                <td>
+                  <span className={`role-badge ${u.role}`}>
+                    {u.role.toUpperCase()}
+                  </span>
+                </td>
+                <td>{new Date(u.createdAt).toLocaleDateString("vi-VN")}</td>
+                <td>
+                  <button onClick={() => handleEdit(u)} className="btn-edit">
+                    Sửa
+                  </button>
+
+                  {/* Ẩn nút xóa nếu là chính mình */}
+                  {currentUser && u._id !== currentUser._id && (
                     <button
-                      onClick={() => handleEdit(user)}
-                      className="edit-btn"
-                    >
-                      Sửa
-                    </button>
-                    <button
-                      onClick={() => handleDelete(user._id)}
-                      className="delete-btn"
+                      onClick={() => handleDelete(u._id)}
+                      className="btn-delete"
                     >
                       Xóa
                     </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
+                  )}
+                </td>
+              </tr>
+            ))}
+            {filteredUsers.length === 0 && (
               <tr>
-                <td colSpan="6" className="no-users">
-                  Không tìm thấy nhân viên phù hợp.
+                <td colSpan="4" style={{ textAlign: "center", padding: 20 }}>
+                  Không tìm thấy nhân viên.
                 </td>
               </tr>
             )}
@@ -257,49 +167,17 @@ const ManageUsers = () => {
         </table>
       </div>
 
-      {/* PAGINATION */}
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button
-            className="pagination-btn"
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(currentPage - 1)}
-          >
-            ← Trước
-          </button>
-
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              className={`pagination-btn ${currentPage === p ? "active" : ""}`}
-              onClick={() => setCurrentPage(p)}
-            >
-              {p}
-            </button>
-          ))}
-
-          <button
-            className="pagination-btn"
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(currentPage + 1)}
-          >
-            Sau →
-          </button>
-        </div>
-      )}
-
-      {/* FORM MODAL */}
+      {/* MODAL FORM */}
       {showForm && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h2 className="modal-title">
-              {editingUser ? "Sửa nhân viên" : "Thêm nhân viên mới"}
-            </h2>
+            <h2>{editingUser ? "Sửa Nhân Viên" : "Thêm Nhân Viên"}</h2>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="user-form">
               <div className="form-group">
-                <label>Username:</label>
+                <label>Username</label>
                 <input
+                  className="form-input"
                   name="username"
                   value={formData.username}
                   onChange={handleInputChange}
@@ -308,71 +186,52 @@ const ManageUsers = () => {
               </div>
 
               <div className="form-group">
-                <label>Họ tên:</label>
+                <label>
+                  Mật khẩu
+                  {editingUser && (
+                    <span className="password-hint">
+                      (Để trống nếu không đổi)
+                    </span>
+                  )}
+                </label>
                 <input
-                  name="fullName"
-                  value={formData.fullName}
+                  className="form-input"
+                  type="text" // Để text cho dễ nhìn lúc tạo
+                  name="password"
+                  value={formData.password}
                   onChange={handleInputChange}
-                  required
+                  required={!editingUser} // Chỉ bắt buộc khi Thêm mới
+                  placeholder={
+                    editingUser
+                      ? "Nhập để đổi mật khẩu mới"
+                      : "Nhập mật khẩu..."
+                  }
                 />
               </div>
 
               <div className="form-group">
-                <label>Email:</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Số điện thoại:</label>
-                <input
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Vai trò:</label>
+                <label>Vai trò</label>
                 <select
+                  className="form-select"
                   name="role"
                   value={formData.role}
                   onChange={handleInputChange}
                 >
-                  <option value="admin">Admin</option>
-                  <option value="staff">Staff</option>
+                  <option value="librarian">Thủ thư (Librarian)</option>
+                  <option value="admin">Quản trị viên (Admin)</option>
                 </select>
               </div>
 
-              {!editingUser && (
-                <div className="form-group">
-                  <label>Mật khẩu:</label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-              )}
-
-              <div className="form-actions">
+              <div className="modal-actions">
                 <button
                   type="button"
-                  className="cancel-btn"
                   onClick={handleCloseForm}
+                  className="btn-cancel"
                 >
                   Hủy
                 </button>
-                <button type="submit" className="submit-btn">
-                  {editingUser ? "Cập nhật" : "Thêm mới"}
+                <button type="submit" className="btn-save">
+                  Lưu
                 </button>
               </div>
             </form>

@@ -11,9 +11,8 @@ import {
   FaEyeSlash,
 } from "react-icons/fa";
 
-import "./Login.css"; // Dùng chung file CSS với Login
+import "./Login.css";
 
-// Import Hook & Context
 import { useRegisterReader } from "../../hooks/useReader";
 import { useAuth } from "../../context/AuthContext";
 
@@ -76,7 +75,6 @@ export default function Register() {
           <h2>ĐĂNG KÝ</h2>
           <p>Tạo tài khoản bạn đọc mới để mượn sách.</p>
 
-          {/* Hiển thị lỗi từ Backend */}
           {isError && (
             <p style={{ color: "red", fontSize: "14px", marginBottom: "10px" }}>
               {error?.response?.data?.message || "Đăng ký thất bại!"}

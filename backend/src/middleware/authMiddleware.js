@@ -22,10 +22,10 @@ export const protect = async (req, res, next) => {
       // Nếu là Reader -> Tìm trong bảng Reader
       user = await Reader.findById(decoded.id).select("-password");
     } else {
-      // Nếu là Admin/Librarian -> Tìm trong bảng User
+      // Nếu là Admin -> Tìm trong bảng User
       user = await User.findById(decoded.id).select("-password");
     }
-    // ------------------------------------
+  
     if (!user) {
       return res
         .status(401)

@@ -14,3 +14,6 @@ export const approveBorrowApi = (recordId) =>
 export const getBorrowsByReaderIdApi = (readerId) => {
   return axiosClient.get(`/borrows/reader/${readerId}`);
 };
+export const cancelBorrowApi = (recordId) => {
+  return axiosClient.delete(`borrows/${recordId}/cancel`);
+};
