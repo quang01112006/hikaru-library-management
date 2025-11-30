@@ -3,9 +3,6 @@ import BorrowRecord from "../models/BorrowRecord.js";
 import Reader from "../models/Reader.js";
 import Book from "../models/Book.js";
 
-// ============================================================
-// 1. TẠO PHIẾU MƯỢN (CÓ LOGIC ĐẶT GẠCH)
-// ============================================================
 export const createBorrowRecord = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -13,52 +10,50 @@ export const createBorrowRecord = async (req, res) => {
   try {
     const { readerId, bookId, dueDate } = req.body;
 
-    // --- [LOGIC MỚI]: Xác định trạng thái ---
-    // Nếu người gọi API là Admin/Librarian -> Duyệt luôn ('borrowing')
-    // Nếu người gọi là Reader (khách) -> Chờ duyệt ('pending')
-    // (Giả sử req.user có role, nếu chưa có auth middleware cho reader thì mặc định là borrowing)
     const isReader = req.user && req.user.role === "reader";
     const initialStatus = isReader ? "pending" : "borrowing";
-    // ---------------------------------------
 
-    // Check Reader
-    // Nếu là Reader tự mượn, lấy ID của chính họ
     const finalReaderId = isReader ? req.user._id : readerId;
 
     const reader = await Reader.findById(finalReaderId).session(session);
     if (!reader) throw new Error("Bạn đọc không tồn tại");
 
-    // Check Quota
     const currentBorrows = await BorrowRecord.countDocuments({
       reader: finalReaderId,
       returnDate: null,
-      // Chỉ đếm những cuốn ĐANG MƯỢN hoặc CHỜ DUYỆT (để tránh spam đơn chờ)
       status: { $in: ["borrowing", "pending"] },
     }).session(session);
 
     if (currentBorrows >= reader.quota) {
-      throw new Error("Bạn đọc đã hết hạn mức mượn sách");
+      throw new Error("Bạn đọc đã hết hạn mức mượn sách ");
     }
 
-    // --- [LOGIC MỚI]: Xử lý kho sách ---
-
-    // Kiểm tra sách có tồn tại không
+    o;
     const book = await Book.findById(bookId).session(session);
     if (!book) throw new Error("Sách không tồn tại");
 
     if (initialStatus === "borrowing") {
-      // ADMIN TẠO -> TRỪ KHO LUÔN
-      if (book.availableQuantity <= 0) throw new Error("Sách đã hết hàng");
-
+      if (book.availableQuantity <= 0) {
+        throw new Error("Sách đã hết hàng trong kho");
+      }
       book.availableQuantity -= 1;
       await book.save({ session });
     } else {
-      // READER ĐẶT -> KHÔNG TRỪ KHO (Chỉ check xem còn ko)
-      if (book.availableQuantity <= 0)
-        throw new Error("Sách này hiện đang tạm hết");
+      const pendingCount = await BorrowRecord.countDocuments({
+        book: bookId,
+        status: "pending",
+      }).session(session);
+
+      const effectiveStock = book.availableQuantity - pendingCount;
+
+      if (effectiveStock <= 0) {
+        throw new Error(
+          "Sách này đã hết lượt đặt trước! (Đang có người chờ duyệt)"
+        );
+      }
     }
 
-    // Tạo phiếu
+    // 6. Tạo Phiếu
     const newRecord = new BorrowRecord({
       reader: finalReaderId,
       book: bookId,
