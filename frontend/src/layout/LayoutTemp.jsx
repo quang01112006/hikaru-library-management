@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import "./Layout.css";
-export default function Layout() {
+export default function LayoutTemp() {
   function toggleSidebar() {
     setIsCollapsed(!isCollapsed);
   }
