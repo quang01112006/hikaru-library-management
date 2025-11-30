@@ -1,61 +1,113 @@
 import { useState } from "react";
 import Button from "../../components/button/Button";
 import { Link, useNavigate } from "react-router-dom";
-import { FaUser, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaUser, FaEye, FaEyeSlash, FaEnvelope } from "react-icons/fa";
 import "./Login.css";
+import logo from "../../assets/images/hikaru-logo.png";
+
 import { useLogin } from "../../hooks/useUser";
+import { useLoginReader } from "../../hooks/useReader";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Login() {
-  //ẩn hiện pass
+  const navigate = useNavigate();
+  const { dispatch } = useAuth();
+
+  const [isReaderMode, setIsReaderMode] = useState(() => {
+    return localStorage.getItem("lastLoginMode") === "reader";
+  });
+
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [identifier, setIdentifier] = useState(""); // Dùng chung cho Username và Email
+  const [password, setPassword] = useState("");
+
+  const { mutate: loginAdmin, isPending: loadingAdmin } = useLogin();
+  const { mutate: loginReader, isPending: loadingReader } = useLoginReader();
+
+  const isPending = loadingAdmin || loadingReader;
+
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
-  const { mutate: login, isError, error, isPending } = useLogin();
-  const { dispatch } = useAuth();
+
+  const handleSuccess = (data) => {
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    dispatch({ type: "LOGIN_SUCCESS", payload: data });
+    if (data.user.role === "reader") {
+      navigate("/library");
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
+  const handleError = (err) => {
+    console.log("Login failed:", err);
+    alert(err.response?.data?.message || "Đăng nhập thất bại");
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    login(
-      { username, password },
-      {
-        onSuccess: (data) => {
-          console.log("login xong", data);
-          dispatch({ type: "LOGIN_SUCCESS", payload: data });
-          navigate("/");
-        },
-        onError: (err) => {
-          console.log("Login thất bại:", err);
-        },
-      }
-    );
-    console.log("Form submitted!");
+
+    if (isReaderMode) {
+      loginReader(
+        { email: identifier, password },
+        { onSuccess: handleSuccess, onError: handleError }
+      );
+    } else {
+      loginAdmin(
+        { username: identifier, password },
+        { onSuccess: handleSuccess, onError: handleError }
+      );
+    }
   };
 
   return (
     <div className="login-page">
       <div className="login-container">
-        {/* Login Form */}
         <div className="login-container-left">
-          <h2>LOGIN</h2>
-          <p>Welcome back! Please enter your details.</p>
+          {/* --- TAB CHUYỂN ĐỔI --- */}
+          <div className="login-tabs">
+            <div
+              className={`tab ${!isReaderMode ? "active" : ""}`}
+              onClick={() => {
+                setIsReaderMode(false);
+                setIdentifier("");
+                localStorage.setItem("lastLoginMode", "admin");
+              }}
+            >
+              Admin
+            </div>
+            <div
+              className={`tab ${isReaderMode ? "active" : ""}`}
+              onClick={() => {
+                setIsReaderMode(true);
+                setIdentifier("");
+                localStorage.setItem("lastLoginMode", "reader");
+              }}
+            >
+              Reader
+            </div>
+          </div>
+
+          <p>Vui lòng đăng nhập để tiếp tục.</p>
 
           <form className="login-form" onSubmit={handleSubmit}>
             <div className="input-box">
               <input
-                type="text"
+                type={isReaderMode ? "email" : "text"}
                 required
                 placeholder=" "
-                id="username"
-                name="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
               />
-              <label htmlFor="username">Username</label>
-              <FaUser className="icon-user" />
+
+              <label>{isReaderMode ? "Email đăng ký" : "Tên đăng nhập"}</label>
+              {isReaderMode ? (
+                <FaEnvelope className="icon-user" />
+              ) : (
+                <FaUser className="icon-user" />
+              )}
             </div>
 
             <div className="input-box">
@@ -63,43 +115,50 @@ export default function Login() {
                 type={isPasswordVisible ? "text" : "password"}
                 required
                 placeholder=" "
-                id="password"
-                name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <label htmlFor="password">Password</label>
+              <label>Mật khẩu</label>
               <div className="icon-eye" onClick={togglePasswordVisibility}>
                 {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
               </div>
             </div>
-            <Link to="/forgot-password" className="forgot-password">
+
+            <Link
+              to="/forgot-password"
+              style={{
+                display: "block",
+                textAlign: "right",
+                marginBottom: 20,
+                fontSize: 14,
+                color: "#116ea3ff",
+              }}
+            >
               Quên mật khẩu?
             </Link>
 
             <Button
               type="submit"
               className="login-button"
-              // btnName="Đăng nhập"
               btnName={isPending ? "Đang xử lý..." : "Đăng nhập"}
               disabled={isPending}
             />
-            {isError && (
-              <p
-                style={{ color: "red", fontSize: "14px", marginBottom: "10px" }}
-              >
-                {error?.response?.data?.message || "Đăng nhập thất bại!"}
-              </p>
+
+            {/* Link đăng ký cho bạn đọc */}
+            {isReaderMode && (
+              <div style={{ marginTop: 15, textAlign: "center", fontSize: 14 }}>
+                Chưa có tài khoản?{" "}
+                <Link to="/register" style={{ color: "#131f18ff" }}>
+                  Đăng ký ngay
+                </Link>
+              </div>
             )}
           </form>
         </div>
 
-        {/* Brand Name  */}
         <div className="login-container-right">
           <div className="brand-content">
-            {/* <img src={YourLogo} alt="Logo" className="brand-logo" /> */}
-            <h1 className="brand-logo">Hi</h1>
-            <p>Quản lý Thư viện</p>
+            <img src={logo} alt="logo" className="login-logo-img" />
           </div>
         </div>
       </div>

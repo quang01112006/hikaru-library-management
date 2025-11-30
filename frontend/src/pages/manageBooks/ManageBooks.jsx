@@ -1,6 +1,7 @@
 import "./ManageBooks.css";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import Loading from "../../components/loading/Loading";
 import {
   useGetBook,
   useAddBook,
@@ -96,8 +97,7 @@ export default function BooksPage() {
     return sortConfig.direction === "asc" ? "↑" : "↓";
   };
 
-  // --- LOADING UI, đợi có component Loading , error thì thay vô ---
-  if (isLoading) return <div className="loading">⏳ Đang tải sách...</div>;
+  if (isLoading) return <Loading></Loading>;
   if (isError) return <div className="error">❌ Lỗi: {error.message}</div>;
   return (
     <div className="books-page">

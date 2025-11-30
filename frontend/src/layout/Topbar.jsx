@@ -23,19 +23,19 @@ export default function Topbar() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [profileDropDown]);
-  let currentPageTitle = "Home";
-  switch (currentPath) {
-    case "/":
-      currentPageTitle = "Home";
-      break;
-    case "/books":
-      currentPageTitle = "Manage Books";
-      break;
-  }
+  // let currentPageTitle = "Home";
+  // switch (currentPath) {
+  //   case "/":
+  //     currentPageTitle = "Home";
+  //     break;
+  //   case "/books":
+  //     currentPageTitle = "Manage Books";
+  //     break;
+  // }
   return (
     <div className="topbar-container">
       <div className="topbar-left">
-        <h2 className="page-title">{currentPageTitle}</h2>
+        <h2 className="page-title">HikaruLib</h2>
       </div>
       <div className="topbar-right">
         <div className="topbar-icon-wrapper">

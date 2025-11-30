@@ -12,7 +12,7 @@ export const useLogin = () => {
   });
 };
 
-export const useGetAllUsers = () => {
+export const useGetUsers = () => {
   return useQuery({
     queryKey: ["users"],
     queryFn: getAllUsersApi,

@@ -4,8 +4,11 @@ import {
   addReaderApi,
   updateReaderApi,
   deleteReaderApi,
+  registerReaderApi,
 } from "../service/readerService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+import axiosClient from "../api/axiosClient";
 
 export const useGetReaders = () => {
   return useQuery({
@@ -47,5 +50,21 @@ export const useDeleteReader = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["readers"] });
     },
+  });
+};
+
+export const useLoginReader = () => {
+  return useMutation({
+    mutationFn: ({ email, password }) => {
+      // Gọi API login riêng của Reader
+      return axiosClient.post("/readers/login", { email, password });
+    },
+  });
+};
+
+export const useRegisterReader = () => {
+  return useMutation({
+    mutationFn: registerReaderApi,
+    
   });
 };

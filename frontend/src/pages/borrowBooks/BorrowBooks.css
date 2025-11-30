@@ -10,7 +10,7 @@
   align-items: center;
   margin-bottom: 2rem;
 }
- 
+
 .borrows-header h1 {
   color: var(--n-900);
   font-size: var(--h1-font-size);
@@ -141,7 +141,7 @@
 }
 
 /* Status badges */
-.status-badge {
+.borrow-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: var(--caption-font-size);
@@ -151,17 +151,17 @@
   min-width: 80px;
 }
 
-.status-badge.returned {
+.borrow-badge.returned {
   background: var(--p-100);
   color: var(--p-700);
 }
 
-.status-badge.borrowing {
+.borrow-badge.borrowing {
   background: #dbeafe;
   color: #1e40af;
 }
 
-.status-badge.overdue {
+.borrow-badge.overdue {
   background: #fecaca;
   color: #dc2626;
 }
@@ -233,7 +233,7 @@
 }
 
 /* Modal - Khung tạo phiếu mượn */
-.modal {
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -252,18 +252,18 @@
   padding: 30px 26px;
   border-radius: 14px;
   width: 420px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   animation: fadeIn 0.2s ease;
   font-size: 17px;
 }
 
 /* Tiêu đề modal */
-.modal-content h2 {
+/* .modal-content h2 {
   font-size: 26px;
   font-weight: 700;
   margin-bottom: 20px;
   text-align: center;
-}
+} */
 
 /* Form group */
 .form-group {
@@ -278,7 +278,7 @@
 }
 
 /* Input đẹp và bo góc */
-.modal-content input,
+/* .modal-content input,
 .modal-content select {
   width: 100%;
   padding: 12px;
@@ -336,13 +336,19 @@
 
 .modal-actions .btn-cancel:hover {
   background: #c2c2c2;
-}
+} */
 
 /* Animation */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+/* @keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} */
 
 /* Phân trang */
 .pagination {
@@ -385,25 +391,25 @@
   .borrows-page {
     padding: 1rem;
   }
-  
+
   .borrows-header {
     flex-direction: column;
     gap: 1rem;
     align-items: flex-start;
   }
-  
+
   .borrows-table-container {
     overflow-x: auto;
   }
-  
+
   .borrows-table {
     min-width: 800px;
   }
-  
+
   .pagination {
     flex-wrap: wrap;
   }
-  
+
   .return-btn {
     padding: 0.3rem 0.6rem;
     font-size: 0.75rem;
@@ -429,7 +435,8 @@
   }
 }
 
-.loading, .error {
+.loading,
+.error {
   text-align: center;
   padding: 2rem;
   font-size: var(--h3-font-size);
@@ -438,4 +445,135 @@
 
 .error {
   color: #dc2626;
+}
+
+.borrow-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; 
+  backdrop-filter: blur(3px);
+}
+
+
+.borrow-modal-content {
+  position: relative; 
+  background: #ffffff;
+  padding: 30px 26px;
+  border-radius: 14px;
+  width: 500px; 
+  max-width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.borrow-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.borrow-modal-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  text-align: left;
+}
+
+.borrow-close-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #999;
+  cursor: pointer;
+  line-height: 1;
+}
+.borrow-close-btn:hover {
+  color: #e74c3c;
+}
+
+/* Form Elements */
+.borrow-modal-form .form-group {
+  margin-bottom: 16px;
+}
+
+.borrow-modal-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+}
+
+.borrow-modal-form input,
+.borrow-modal-form select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border 0.15s;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+.borrow-modal-form input:focus,
+.borrow-modal-form select:focus {
+  outline: none;
+  border-color: var(--p-500);
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+/* Buttons */
+.borrow-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.borrow-btn-cancel {
+  padding: 10px 20px;
+  background: #f1f3f5;
+  color: #495057;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.borrow-btn-cancel:hover {
+  background: #e9ecef;
+}
+
+.borrow-btn-save {
+  padding: 10px 20px;
+  background: var(--p-500);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.borrow-btn-save:hover {
+  background: var(--p-700);
+}
+.borrow-btn-save:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }

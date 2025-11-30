@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import Reader from "../models/Reader.js";
 
 export const protect = async (req, res, next) => {
   let token;
@@ -15,7 +16,16 @@ export const protect = async (req, res, next) => {
   }
   try {
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    const user = await User.findById(decoded.id).select("-password");
+    let user;
+
+    if (decoded.role === "reader") {
+      // Nếu là Reader -> Tìm trong bảng Reader
+      user = await Reader.findById(decoded.id).select("-password");
+    } else {
+      // Nếu là Admin/Librarian -> Tìm trong bảng User
+      user = await User.findById(decoded.id).select("-password");
+    }
+    // ------------------------------------
     if (!user) {
       return res
         .status(401)

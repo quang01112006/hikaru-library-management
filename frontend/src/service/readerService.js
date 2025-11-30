@@ -15,3 +15,8 @@ export const updateReaderApi = (readerId, updateReaderData) => {
 export const deleteReaderApi = (readerId) => {
   return axiosClient.delete(`/readers/${readerId}`);
 };
+
+export const registerReaderApi = (data) => {
+  // data gồm: { name, email, password, phone }
+  return axiosClient.post("/readers/register", data);
+};

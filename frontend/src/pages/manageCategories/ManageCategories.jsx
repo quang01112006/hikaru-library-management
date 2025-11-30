@@ -6,6 +6,7 @@ import {
   useUpdateCategory,
   useDeleteCategory,
 } from "../../hooks/useCategory";
+import Loading from "../../components/loading/Loading";
 
 const ManageCategories = () => {
   const {
@@ -134,13 +135,9 @@ const ManageCategories = () => {
     else document.body.style.overflow = "auto";
   }, [showAddForm, showEditForm, showDeleteModal]);
 
-  // === XỬ LÝ LOADING ===
-  if (isCategoryLoading)
-    return <div className="loading-text"> Đang tải dữ liệu...</div>;
-  if (isCategoryError)
-    return <div className="error-text"> Lỗi tải trang!</div>;
+  if (isCategoryLoading) return <Loading />;
+  if (isCategoryError) return <div className="error-text"> Lỗi tải trang!</div>;
 
-  
   return (
     <div className="category-page fade-in">
       <div className="category-header slide-down">

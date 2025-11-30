@@ -69,6 +69,7 @@ html,
 body {
   height: 100vh;
   background: var(--gradient-color);
+  background-attachment: fixed;
   font-family: "Roboto", sans-serif;
 }
 

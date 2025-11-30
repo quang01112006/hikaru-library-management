@@ -9,3 +9,8 @@ export const createBorrowRecordApi = (data) => {
 export const returnBookApi = (recordId) => {
   return axiosClient.patch(`/borrows/${recordId}/return`);
 };
+export const approveBorrowApi = (recordId) =>
+  axiosClient.patch(`/borrows/${recordId}/approve`);
+export const getBorrowsByReaderIdApi = (readerId) => {
+  return axiosClient.get(`/borrows/reader/${readerId}`);
+};

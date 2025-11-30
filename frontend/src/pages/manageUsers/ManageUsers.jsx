@@ -8,6 +8,7 @@ import {
   useUpdateUser,
   useDeleteUser,
 } from "../../hooks/useUser";
+import Loading from "../../components/loading/Loading";
 
 const ManageUsers = () => {
   // Lấy danh sách nhân viên từ API
@@ -166,8 +167,7 @@ const ManageUsers = () => {
     });
   };
 
-  if (isLoading)
-    return <div className="loading">⏳ Đang tải danh sách nhân viên...</div>;
+  if (isLoading) return <Loading />;
   if (isError) return <div className="error">❌ Lỗi tải dữ liệu!</div>;
 
   return (
@@ -271,9 +271,7 @@ const ManageUsers = () => {
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
             <button
               key={p}
-              className={`pagination-btn ${
-                currentPage === p ? "active" : ""
-              }`}
+              className={`pagination-btn ${currentPage === p ? "active" : ""}`}
               onClick={() => setCurrentPage(p)}
             >
               {p}
