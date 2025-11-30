@@ -175,23 +175,6 @@ export default function BookForm() {
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="code">Mã sách *</label>
-            <input
-              type="text"
-              id="code"
-              name="bookCode" // Sửa name thành bookCode cho khớp state
-              value={formData.bookCode}
-              onChange={handleChange}
-              className={errors.bookCode ? "error" : ""}
-              placeholder="Nhập mã sách (VD: B001)"
-              // disabled={isEditMode} // Tùy sếp có cho sửa mã hay ko
-            />
-            {errors.bookCode && (
-              <span className="error-message">{errors.bookCode}</span>
-            )}
-          </div>
-
-          <div className="form-group">
             <label htmlFor="genre">Thể loại *</label>
             <select
               id="genre"
@@ -201,7 +184,7 @@ export default function BookForm() {
               className={errors.genre ? "error" : ""}
             >
               <option value="">-- Chọn thể loại --</option>
-              {/* MAP DATA THẬT TỪ API */}
+
               {categories.map((cat) => (
                 <option key={cat._id} value={cat._id}>
                   {cat.name}
@@ -231,7 +214,6 @@ export default function BookForm() {
             )}
           </div>
 
-          {/* Thêm input Ảnh */}
           <div className="form-group">
             <label>Ảnh bìa:</label>
             <input type="file" accept="image/*" onChange={handleImageUpload} />

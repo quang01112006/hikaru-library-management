@@ -3,6 +3,7 @@ import bookRoutes from "./routes/bookRoutes.js";
 import readerRoutes from "./routes/readerRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import statsRoutes from "./routes/statsRoutes.js";
 import { connectDB } from "./config/db.js";
 import dotenv from "dotenv";
 import { protect } from "./middleware/authMiddleware.js";
@@ -29,6 +30,7 @@ app.use("/api/books", bookRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/borrows", borrowRecordRoutes);
 
+app.use("/api/stats", statsRoutes);
 app.listen(PORT, () => {
   console.log("server chạy ở port 5001");
 });

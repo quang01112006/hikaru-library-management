@@ -52,9 +52,18 @@ export const searchBooks = async (req, res) => {
 
 export const addBook = async (req, res) => {
   try {
-    const { bookCode, title, author, genre, quantity, image, description } =
+    let { bookCode, title, author, genre, quantity, image, description } =
       req.body;
-
+    if (!bookCode) {
+      const lastBook = await Book.findOne().sort({ bookCode: -1 });
+      if (lastBook && lastBook.bookCode.startsWith("B")) {
+        const lastNumber = parseInt(lastBook.bookCode.slice(1));
+        const nextNumber = lastNumber + 1;
+        bookCode = `B${nextNumber.toString().padStart(3, "0")}`;
+      } else {
+        bookCode = "B1000";
+      }
+    }
     const category = await Category.findById(genre);
     if (!category) {
       return res.status(400).json({ message: "Thể loại không tồn tại" });

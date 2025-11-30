@@ -124,7 +124,7 @@
 ===================================*/
 .login-container-right {
   flex-basis: 45%;
-  background: var(--main-gradient-color);
+  background: var(--p-500);
   color: var(--n-100);
   display: flex;
   justify-content: center;
@@ -143,14 +143,12 @@
 }
 
 .login-logo-img {
-  width: 200px; 
-  height: auto; 
+  width: 200px;
+  height: auto;
   margin-bottom: 15px;
 
-  
   filter: drop-shadow(0 8px 10px rgba(1, 120, 255, 0.5));
 
- 
   animation: floatLogo 4s ease-in-out infinite;
 }
 
@@ -198,11 +196,11 @@
   }
 
   .brand-content {
-    padding-left: 0; 
+    padding-left: 0;
   }
 
   .login-logo-img {
-    width: 80px; 
+    width: 80px;
   }
 }
 

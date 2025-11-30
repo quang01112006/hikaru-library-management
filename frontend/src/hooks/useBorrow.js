@@ -1,10 +1,16 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  Mutation,
+} from "@tanstack/react-query";
 import {
   getBorrowHistoryApi,
   createBorrowRecordApi,
   returnBookApi,
   approveBorrowApi,
   getBorrowsByReaderIdApi,
+  cancelBorrowApi,
 } from "../service/borrowService";
 export const useGetBorrowHistory = () => {
   return useQuery({
@@ -46,8 +52,18 @@ export const useApproveBorrow = () => {
 };
 export const useGetBorrowsByReader = (readerId) => {
   return useQuery({
-    queryKey: ["borrows", "reader", readerId], // Key cache riêng cho từng ông
+    queryKey: ["borrows", "reader", readerId],
     queryFn: () => getBorrowsByReaderIdApi(readerId),
     enabled: !!readerId, // CHỈ CHẠY KHI CÓ ID
+  });
+};
+
+export const useCancelBorrow = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: cancelBorrowApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["borrows"] });
+    },
   });
 };

@@ -12,7 +12,6 @@ import {
 export default function BooksPage() {
   const { data: bookData, isLoading, isError, error } = useGetBook();
   const books = bookData || []; //đề phòng lỗi server
-  console.log(books);
 
   // Gọi Hook Xóa
   const { mutate: deleteBook } = useDeleteBook();
@@ -118,7 +117,7 @@ export default function BooksPage() {
             onChange={handleSearchChange}
             className="search-input"
           />
-          <span className="search-icon">🔍</span>
+        {/* <span className="search-icon">🔍</span> */}
         </div>
         <div className="search-results">
           Tìm thấy {filteredBooks.length} sách

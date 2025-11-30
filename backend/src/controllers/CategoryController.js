@@ -5,16 +5,14 @@ export const getAllCategories = async (req, res) => {
   try {
     const categories = await Category.aggregate([
       {
-        // 1. "Nhìn sang" collection 'books'
         $lookup: {
-          from: "books", // Tên collection sách trong DB (thường là số nhiều của Model)
-          localField: "_id", // Khớp _id của Category...
-          foreignField: "genre", // ...với trường 'genre' bên Book
-          as: "bookList", // Gán kết quả vào mảng tạm tên là 'bookList'
+          from: "books",
+          localField: "_id",
+          foreignField: "genre",
+          as: "bookList",
         },
       },
       {
-        // 2. Đếm và định dạng lại
         $project: {
           _id: 1,
           name: 1,
@@ -22,12 +20,10 @@ export const getAllCategories = async (req, res) => {
           image: 1,
           createdAt: 1,
           updatedAt: 1,
-          // Tạo trường 'count' bằng cách đếm số phần tử trong mảng 'bookList'
           count: { $size: "$bookList" },
         },
       },
       {
-        // (Tùy chọn) Sắp xếp mới nhất lên đầu
         $sort: { createdAt: -1 },
       },
     ]);

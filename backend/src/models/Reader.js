@@ -6,7 +6,7 @@ const readerSchema = new mongoose.Schema(
     readerCode: {
       type: String,
       unique: true,
-      // required: true, 
+      // required: true,
     },
     name: {
       type: String,
@@ -16,8 +16,8 @@ const readerSchema = new mongoose.Schema(
     email: {
       type: String,
       trim: true,
-      required: true, 
-      unique: true, 
+      required: true,
+      unique: true,
     },
     phone: {
       type: String,
@@ -41,7 +41,6 @@ const readerSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-
 readerSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
@@ -54,7 +53,6 @@ readerSchema.pre("save", async function (next) {
     next(error);
   }
 });
-
 
 readerSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);

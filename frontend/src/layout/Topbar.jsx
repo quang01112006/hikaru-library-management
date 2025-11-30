@@ -3,12 +3,13 @@ import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import useLogout from "../hooks/useLogout";
 import { FaBell, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
-import { useLocation } from "react-router-dom";
+
+import { useAuth } from "../context/AuthContext";
 export default function Topbar() {
+  const { user } = useAuth();
   const [profileDropDown, setProfileDropDown] = useState(false);
   const handleLogout = useLogout();
-  const location = useLocation();
-  const currentPath = location.pathname;
+
   const dropdownRef = useRef(null);
   useEffect(() => {
     function handleClickOutside(e) {
@@ -23,19 +24,11 @@ export default function Topbar() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [profileDropDown]);
-  // let currentPageTitle = "Home";
-  // switch (currentPath) {
-  //   case "/":
-  //     currentPageTitle = "Home";
-  //     break;
-  //   case "/books":
-  //     currentPageTitle = "Manage Books";
-  //     break;
-  // }
+
   return (
     <div className="topbar-container">
       <div className="topbar-left">
-        <h2 className="page-title">HikaruLib</h2>
+        <h2 className="page-title"> </h2>
       </div>
       <div className="topbar-right">
         <div className="topbar-icon-wrapper">
@@ -48,8 +41,8 @@ export default function Topbar() {
             className="profile-wrapper"
             onClick={() => setProfileDropDown(!profileDropDown)}
           >
-            <img src="hta" alt="anh" className="profile-avt" />
-            <span className="profile-name">NCQ</span>
+            <FaUserCircle className="profile-avt-icon" size={32} color="#555" />
+            <span className="profile-name">{user?.username || "Admin"}</span>
           </div>
 
           {profileDropDown && (

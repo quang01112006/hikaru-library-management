@@ -35,7 +35,7 @@ export const getAllReaders = async (req, res) => {
       },
       {
         $project: {
-          activeBorrows: 0, // Bỏ mảng thừa đi cho nhẹ
+          activeBorrows: 0,
           password: 0, // Không trả về password
           __v: 0,
         },
@@ -69,7 +69,7 @@ export const addReader = async (req, res) => {
   try {
     let { readerCode, name, email, phone, quota, password } = req.body;
 
-    // Logic tự sinh mã Rxxx nếu không nhập
+    // Logic tự sinh mã Rxxx
     if (!readerCode) {
       const lastReader = await Reader.findOne().sort({ readerCode: -1 });
       if (lastReader && lastReader.readerCode.startsWith("R")) {
@@ -95,13 +95,11 @@ export const addReader = async (req, res) => {
       email,
       phone,
       quota: Number(quota) || 5,
-      password, // Hook pre-save sẽ tự hash
+      password,
       role: "reader",
     });
 
     await newReader.save();
-
-    // Trả về (nhớ bỏ password)
     const readerResponse = newReader.toObject();
     delete readerResponse.password;
 
@@ -116,7 +114,6 @@ export const addReader = async (req, res) => {
   }
 };
 
-// --- 4. CẬP NHẬT (SỬA LOGIC ĐỂ HASH PASSWORD) ---
 export const updateReaderInfo = async (req, res) => {
   try {
     const { readerCode, name, email, phone, quota, password } = req.body;
@@ -126,21 +123,18 @@ export const updateReaderInfo = async (req, res) => {
       return res.status(404).json({ message: "Bạn đọc không tồn tại" });
     }
 
-    // Cập nhật từng trường (nếu có gửi lên)
     if (readerCode) reader.readerCode = readerCode;
     if (name) reader.name = name;
     if (email) reader.email = email;
     if (phone) reader.phone = phone;
     if (quota) reader.quota = quota;
 
-    // Nếu có đổi pass thì gán vào (Hook sẽ tự hash khi save)
     if (password && password.trim() !== "") {
       reader.password = password;
     }
 
     const updatedReader = await reader.save();
 
-    // Trả về (bỏ password)
     const readerResponse = updatedReader.toObject();
     delete readerResponse.password;
 
@@ -156,15 +150,14 @@ export const updateReaderInfo = async (req, res) => {
   }
 };
 
-// --- 5. XÓA (SỬA LẠI THỨ TỰ CHECK) ---
 export const deleteReader = async (req, res) => {
   try {
     const readerId = req.params.id;
 
-    // BƯỚC 1: Kiểm tra ràng buộc TRƯỚC khi xóa
+    // Kiểm tra ràng buộc TRƯỚC khi xóa
     const outstandingBorrows = await BorrowRecord.countDocuments({
       reader: readerId,
-      returnDate: null, // Đang mượn chưa trả
+      returnDate: null,
     });
 
     if (outstandingBorrows > 0) {
@@ -173,7 +166,7 @@ export const deleteReader = async (req, res) => {
       });
     }
 
-    // BƯỚC 2: Xóa
+    // Xóa
     const deletedReader = await Reader.findByIdAndDelete(readerId);
     if (!deletedReader) {
       return res.status(404).json({ message: "Bạn đọc không tồn tại" });
@@ -186,7 +179,6 @@ export const deleteReader = async (req, res) => {
   }
 };
 
-// --- 6. ĐĂNG KÝ TỰ ĐỘNG CHO KHÁCH (PUBLIC) ---
 export const registerReader = async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
@@ -212,25 +204,25 @@ export const registerReader = async (req, res) => {
       readerCode,
       name,
       email,
-      password, // Khách tự nhập pass
+      password, 
       phone,
       quota: 5,
       role: "reader",
     });
 
     // Tạo token luôn để đăng ký xong tự login
-    const token = jwt.sign(
-      { id: newReader._id, role: "reader" },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "30d" }
-    );
+    // const token = jwt.sign(
+    //   { id: newReader._id, role: "reader" },
+    //   process.env.ACCESS_TOKEN_SECRET,
+    //   { expiresIn: "30d" }
+    // );
 
     res.status(201).json({
       _id: newReader._id,
       name: newReader.name,
       email: newReader.email,
       role: "reader",
-      token: token,
+      // token: token,
     });
   } catch (error) {
     console.log("Lỗi đăng ký:", error);
