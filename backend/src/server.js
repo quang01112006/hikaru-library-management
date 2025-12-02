@@ -20,10 +20,9 @@ app.use(express.json({ limit: "50mb" }));
 app.use(cors());
 connectDB();
 
-// public routes
 app.use("/api/users", userRoutes);
 app.use("/api/readers", readerRoutes);
-//private routes
+
 app.use(protect);
 app.use("/api/books", bookRoutes);
 

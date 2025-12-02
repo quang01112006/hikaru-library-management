@@ -25,7 +25,7 @@ export const protect = async (req, res, next) => {
       // Nếu là Admin -> Tìm trong bảng User
       user = await User.findById(decoded.id).select("-password");
     }
-  
+
     if (!user) {
       return res
         .status(401)
@@ -40,6 +40,7 @@ export const protect = async (req, res, next) => {
 };
 
 export const isAdmin = (req, res, next) => {
+  console.log();
   if (req.user && req.user.role === "admin") {
     next();
   } else {

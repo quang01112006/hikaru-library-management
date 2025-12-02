@@ -39,11 +39,6 @@ const bookSchema = new mongoose.Schema(
       default: 0,
       required: true,
     },
-
-    isHidden: {
-      type: Boolean,
-      default: false,
-    },
   },
   {
     timestamps: true,

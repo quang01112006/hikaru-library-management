@@ -37,6 +37,10 @@ const readerSchema = new mongoose.Schema(
       type: String,
       default: "reader",
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

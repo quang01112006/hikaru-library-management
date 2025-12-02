@@ -4,7 +4,7 @@ import Category from "../models/Category.js";
 
 export const getAllBooks = async (req, res) => {
   try {
-    const books = await Book.find({ isHidden: false }).populate(
+    const books = await Book.find().populate(
       "genre",
       "name"
     );
@@ -20,7 +20,6 @@ export const getBookById = async (req, res) => {
   try {
     const book = await Book.findOne({
       _id: req.params.id,
-      isHidden: false,
     }).populate("genre", "name");
 
     if (!book) {
@@ -37,7 +36,6 @@ export const searchBooks = async (req, res) => {
   try {
     const keyword = req.query.q || "";
     const books = await Book.find({
-      isHidden: false,
       $or: [
         { title: { $regex: keyword, $options: "i" } },
         { author: { $regex: keyword, $options: "i" } },
@@ -99,8 +97,7 @@ export const updateBookInfo = async (req, res) => {
       return res.status(404).json({ message: "Sách không tồn tại" });
     }
 
-    const { title, author, genre, quantity, isHidden, image, description } =
-      req.body;
+    const { title, author, genre, quantity, image, description } = req.body;
 
     // Logic tính toán số lượng tồn kho khi tổng số lượng thay đổi
     let newAvailableQuantity = currentBook.availableQuantity;
