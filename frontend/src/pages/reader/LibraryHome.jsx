@@ -62,12 +62,6 @@ export default function LibraryHome() {
   // Xử lý Mượn
   const handleConfirmBorrow = (e) => {
     e.preventDefault();
-
-    if (!user) {
-      alert("Vui lòng đăng nhập!");
-      return;
-    }
-
     createBorrow(
       {
         readerId: user._id,

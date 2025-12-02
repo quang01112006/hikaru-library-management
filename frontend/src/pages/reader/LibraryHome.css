@@ -75,10 +75,10 @@
 }
 
 .in-stock {
-  background-color: #27ae60;
+  background-color: var(--success-500);
 }
 .out-stock {
-  background-color: #c0392b;
+  background-color: var(--danger-500);
 }
 
 .card-content {
@@ -190,9 +190,7 @@
 
 .modal-form label {
   display: block;
-  font-weight: 600;
   margin-bottom: 8px;
-  color: #34495e;
 }
 
 .modal-form input {
@@ -222,7 +220,7 @@
 .btn-confirm {
   padding: 10px 20px;
   border: none;
-  background: #2ecc71;
+  background: var(--success-500);
   color: white;
   border-radius: 6px;
   cursor: pointer;
