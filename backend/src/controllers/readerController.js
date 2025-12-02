@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs"; // Đảm bảo đã import bcrypt
 export const getAllReaders = async (req, res) => {
   try {
     const readers = await Reader.aggregate([
+      { $match: { isDeleted: false } },
       {
         // Join với bảng BorrowRecord để tìm phiếu chưa trả
         $lookup: {
@@ -167,10 +168,12 @@ export const deleteReader = async (req, res) => {
     }
 
     // Xóa
-    const deletedReader = await Reader.findByIdAndDelete(readerId);
-    if (!deletedReader) {
-      return res.status(404).json({ message: "Bạn đọc không tồn tại" });
-    }
+    const reader = await Reader.findById(readerId);
+
+    if (!reader) return res.status(404).json({ message: "Không tìm thấy" });
+    reader.isDeleted = true;
+    reader.email = `${reader.email}-deleted-${Date.now()}`;
+    reader.readerCode = `${reader.readerCode}-del-${Date.now()}`;
 
     res.status(200).json({ message: "Xóa bạn đọc thành công" });
   } catch (error) {
@@ -204,25 +207,17 @@ export const registerReader = async (req, res) => {
       readerCode,
       name,
       email,
-      password, 
+      password,
       phone,
       quota: 5,
       role: "reader",
     });
-
-    // Tạo token luôn để đăng ký xong tự login
-    // const token = jwt.sign(
-    //   { id: newReader._id, role: "reader" },
-    //   process.env.ACCESS_TOKEN_SECRET,
-    //   { expiresIn: "30d" }
-    // );
 
     res.status(201).json({
       _id: newReader._id,
       name: newReader.name,
       email: newReader.email,
       role: "reader",
-      // token: token,
     });
   } catch (error) {
     console.log("Lỗi đăng ký:", error);
