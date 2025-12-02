@@ -1,6 +1,6 @@
 import Loading from "../../components/loading/Loading";
 import { useAuth } from "../../context/AuthContext";
-import { useGetBorrowsByReader } from "../../hooks/useBorrow";
+import { useGetBorrowsByReader, useCancelBorrow } from "../../hooks/useBorrow";
 import "./MyHistory.css";
 
 const MyHistory = () => {
@@ -8,6 +8,16 @@ const MyHistory = () => {
 
   const { data: historyData, isLoading } = useGetBorrowsByReader(user?._id);
   const history = historyData || [];
+  const { mutate: cancelBorrow, isPending: isCanceling } = useCancelBorrow();
+  const handleCancel = (recordId) => {
+    if (window.confirm("Hủy yêu cầu mượn sách này?")) {
+      cancelBorrow(recordId, {
+        onSuccess: () => alert("Hủy yêu cầu thành công!"),
+        onError: (err) =>
+          alert("Lỗi: " + (err.response?.data?.message || err.message)),
+      });
+    }
+  };
 
   const getStatusBadge = (borrow) => {
     const isOverdue =
@@ -44,6 +54,7 @@ const MyHistory = () => {
               <th>Hạn trả</th>
               <th>Ngày trả</th>
               <th>Trạng thái</th>
+              <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -71,6 +82,17 @@ const MyHistory = () => {
                   <td>{formatDate(item.dueDate)}</td>
                   <td>{item.returnDate ? formatDate(item.returnDate) : "-"}</td>
                   <td>{getStatusBadge(item)}</td>
+                  <td>
+                    {item.status === "pending" && (
+                      <button
+                      className="btn-secondary cancel-btn"
+                        onClick={() => handleCancel(item._id)}
+                        disabled={isCanceling}
+                      >
+                        {isCanceling ? "..." : "Hủy mượn"}
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))
             ) : (
