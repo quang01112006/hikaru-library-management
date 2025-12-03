@@ -31,7 +31,6 @@ export const createBorrowRecord = async (req, res) => {
       throw new Error("Bạn đọc đã hết hạn mức mượn sách ");
     }
 
-    o;
     const book = await Book.findById(bookId).session(session);
     if (!book) throw new Error("Sách không tồn tại");
 
