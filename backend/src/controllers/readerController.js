@@ -7,7 +7,6 @@ import bcrypt from "bcryptjs"; // Đảm bảo đã import bcrypt
 export const getAllReaders = async (req, res) => {
   try {
     const readers = await Reader.aggregate([
-      { $match: { isDeleted: false } },
       {
         // Join với bảng BorrowRecord để tìm phiếu chưa trả
         $lookup: {
@@ -168,12 +167,7 @@ export const deleteReader = async (req, res) => {
     }
 
     // Xóa
-    const reader = await Reader.findById(readerId);
-
-    if (!reader) return res.status(404).json({ message: "Không tìm thấy" });
-    reader.isDeleted = true;
-    reader.email = `${reader.email}-deleted-${Date.now()}`;
-    reader.readerCode = `${reader.readerCode}-del-${Date.now()}`;
+    const deletedReader = await Reader.findByIdAndDelete(readerId);
 
     res.status(200).json({ message: "Xóa bạn đọc thành công" });
   } catch (error) {
