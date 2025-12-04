@@ -143,25 +143,6 @@
   cursor: not-allowed;
 }
 
-/* Auto code info */
-.auto-code-info {
-  background-color: #e8f4fd;
-  border-left: 4px solid #2196f3;
-  padding: 12px 16px;
-  margin: 20px 0;
-  border-radius: 4px;
-  grid-column: 1 / -1;
-}
-
-.auto-code-info p {
-  margin: 0;
-  color: #1565c0;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 /* Styles cho preview ảnh */
 .image-preview {
   margin-top: 10px;
