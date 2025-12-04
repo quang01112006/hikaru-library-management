@@ -17,9 +17,6 @@ export const createBorrowRecord = async (req, res) => {
 
     const reader = await Reader.findById(finalReaderId).session(session);
     if (!reader) throw new Error("Bạn đọc không tồn tại");
-    if (reader.isDeleted) {
-      throw new Error("Tài khoản bạn đọc này đã bị khóa hoặc đã xóa!");
-    }
 
     const currentBorrows = await BorrowRecord.countDocuments({
       reader: finalReaderId,
