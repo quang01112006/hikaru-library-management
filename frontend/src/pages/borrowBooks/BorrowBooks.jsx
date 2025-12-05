@@ -7,7 +7,7 @@ import {
   useApproveBorrow,
   useCancelBorrow,
 } from "../../hooks/useBorrow";
-import { useGetBook } from "../../hooks/useBook"; // Sửa thành useGetBook
+import { useGetBook } from "../../hooks/useBook";
 import { useGetReaders } from "../../hooks/useReader";
 
 export default function ManageBorrows() {
@@ -20,7 +20,7 @@ export default function ManageBorrows() {
   const { mutateAsync: createBorrow, isLoading: isCreating } =
     useCreateBorrow();
   const { mutateAsync: returnBook, isLoading: isReturning } = useReturnBook();
-  const { data: booksData, isLoading: booksLoading } = useGetBook(); // Sửa thành useGetBook
+  const { data: booksData, isLoading: booksLoading } = useGetBook();
   const { data: readersData, isLoading: readersLoading } = useGetReaders();
   const { mutate: approveBorrow, isPending: isApproving } = useApproveBorrow();
   const { mutate: cancelBorrow, isPending: isCanceling } = useCancelBorrow();
@@ -127,7 +127,7 @@ export default function ManageBorrows() {
     setCurrentPage(1);
   };
 
-  //  Hàm xử lý DUYỆT
+  // Hàm xử lý DUYỆT
   const handleApprove = (borrowId) => {
     if (window.confirm("Xác nhận DUYỆT phiếu mượn này? (Kho sẽ bị trừ 1)")) {
       approveBorrow(borrowId, {
@@ -136,6 +136,7 @@ export default function ManageBorrows() {
       });
     }
   };
+
   // hủy phiếu
   const handleCancel = (id) => {
     if (window.confirm("Bạn có muốn hủy phiếu mượn này?")) {
@@ -238,7 +239,6 @@ export default function ManageBorrows() {
             onChange={handleSearchChange}
             className="search-input"
           />
-          {/* <span className="search-icon">🔍</span> */}
         </div>
         <div className="search-results">
           Tìm thấy {filteredBorrows.length} phiếu mượn
@@ -304,23 +304,25 @@ export default function ManageBorrows() {
                   <td className="status">{getStatusBadge(borrow)}</td>
                   <td className="borrow-actions">
                     {borrow.status === "pending" && (
-                      <div>
+                      <div className="action-buttons">
                         <button
                           className="approve-btn"
                           onClick={() => handleApprove(borrow._id)}
+                          disabled={isApproving}
                         >
-                          Duyệt
+                          {isApproving ? "Đang duyệt..." : "Duyệt"}
                         </button>
                         <button
-                          className="reject-btn"
+                          className="cancel-btn"
                           onClick={() => handleCancel(borrow._id)}
+                          disabled={isCanceling}
                         >
-                          Hủy
+                          {isCanceling ? "Đang hủy..." : "Hủy"}
                         </button>
                       </div>
                     )}
 
-                    {!borrow.returnDate && (
+                    {!borrow.returnDate && borrow.status !== "pending" && (
                       <button
                         className="return-btn"
                         onClick={() => handleReturnBook(borrow._id)}
