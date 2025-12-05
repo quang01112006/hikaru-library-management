@@ -191,9 +191,16 @@
 }
 
 .pagination-btn.active {
-  background: var(--p-500);
+  background: var(--p-700);
   color: white;
-  border-color: var(--p-500);
+  border-color: var(--p-700);
+}
+
+.pagination .pagination-btn.active {
+  background: var(--p-700) !important;
+  color: #ffffff !important;
+  border-color: var(--p-700) !important;
+  font-weight: 600;
 }
 
 .pagination-btn:disabled {
