@@ -124,7 +124,7 @@ export default function Login() {
               </div>
             </div>
 
-            <Link
+            {/* <Link
               to="/forgot-password"
               style={{
                 display: "block",
@@ -135,7 +135,7 @@ export default function Login() {
               }}
             >
               Quên mật khẩu?
-            </Link>
+            </Link> */}
 
             <Button
               type="submit"
