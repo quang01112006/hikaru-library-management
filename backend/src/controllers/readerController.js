@@ -1,7 +1,7 @@
 import Reader from "../models/Reader.js";
 import BorrowRecord from "../models/BorrowRecord.js";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs"; // Đảm bảo đã import bcrypt
+
 
 // --- 1. LẤY DANH SÁCH (CÓ ĐẾM SỐ SÁCH ĐANG MƯỢN) ---
 export const getAllReaders = async (req, res) => {
