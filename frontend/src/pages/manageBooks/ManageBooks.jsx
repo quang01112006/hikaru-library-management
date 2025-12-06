@@ -96,6 +96,66 @@ export default function BooksPage() {
     return sortConfig.direction === "asc" ? "↑" : "↓";
   };
 
+  const getPaginationItems = () => {
+    if (totalPages <= 8) {
+      return Array.from({ length: totalPages }, (_, i) => ({
+        type: "page",
+        value: i + 1,
+        key: `page-${i + 1}`,
+      }));
+    }
+
+    const items = [];
+
+    items.push({ type: "page", value: 1, key: "page-1" });
+
+    let start = currentPage - 3;
+    let end = currentPage + 3;
+
+    if (start < 2) {
+      end += 2 - start;
+      start = 2;
+    }
+    if (end > totalPages - 1) {
+      start -= end - (totalPages - 1);
+      end = totalPages - 1;
+    }
+
+    if (start < 2) start = 2;
+    if (end > totalPages - 1) end = totalPages - 1;
+
+    const windowSize = end - start + 1;
+    if (windowSize > 7) {
+      if (currentPage <= start + 3) {
+        end = start + 6;
+      } else {
+        start = end - 6;
+      }
+    }
+
+    if (start > 2) {
+      items.push({ type: "ellipsis", key: "ellipsis-left" });
+    }
+
+    for (let page = start; page <= end; page++) {
+      items.push({ type: "page", value: page, key: `page-${page}` });
+    }
+
+    if (end < totalPages - 1) {
+      items.push({ type: "ellipsis", key: "ellipsis-right" });
+    }
+
+    if (totalPages > 1) {
+      items.push({
+        type: "page",
+        value: totalPages,
+        key: `page-${totalPages}`,
+      });
+    }
+
+    return items;
+  };
+
   if (isLoading) return <Loading></Loading>;
   if (isError) return <div className="error">❌ Lỗi: {error.message}</div>;
   return (
@@ -117,7 +177,7 @@ export default function BooksPage() {
             onChange={handleSearchChange}
             className="search-input"
           />
-        {/* <span className="search-icon">🔍</span> */}
+          {/* <span className="search-icon">🔍</span> */}
         </div>
         <div className="search-results">
           Tìm thấy {filteredBooks.length} sách
@@ -226,17 +286,23 @@ export default function BooksPage() {
             ← Trước
           </button>
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              className={`pagination-btn ${
-                currentPage === page ? "active" : ""
-              }`}
-              onClick={() => handlePageChange(page)}
-            >
-              {page}
-            </button>
-          ))}
+          {getPaginationItems().map((item) =>
+            item.type === "page" ? (
+              <button
+                key={item.key}
+                className={`pagination-btn ${
+                  currentPage === item.value ? "active" : ""
+                }`}
+                onClick={() => handlePageChange(item.value)}
+              >
+                {item.value}
+              </button>
+            ) : (
+              <span key={item.key} className="pagination-ellipsis">
+                ...
+              </span>
+            )
+          )}
 
           <button
             className="pagination-btn"
