@@ -1,12 +1,11 @@
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { Outlet, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "./ReaderLayout.css";
 import logo from "../assets/images/hikaru-logo.png";
+import useLogout from "../hooks/useLogout";
 
 const ReaderLayout = () => {
   const { user } = useAuth();
-
-  const navigate = useNavigate();
 
   const handleLogout = useLogout();
 
