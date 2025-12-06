@@ -31,17 +31,20 @@ export const AuthProvider = ({ children }) => {
     if (state.user) {
       localStorage.setItem("user", JSON.stringify(state.user));
       localStorage.setItem("token", state.token);
-    } else {
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
     }
   }, [state.user, state.token]);
+  const logout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    dispatch({ type: "LOGOUT" });
+  };
   return (
     <AuthContext.Provider
       value={{
         user: state.user,
         token: state.token,
         dispatch,
+        logout,
       }}
     >
       {children}
@@ -52,5 +55,3 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   return useContext(AuthContext);
 };
-
-

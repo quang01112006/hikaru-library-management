@@ -4,14 +4,11 @@ import "./ReaderLayout.css";
 import logo from "../assets/images/hikaru-logo.png";
 
 const ReaderLayout = () => {
-  const { user, dispatch } = useAuth();
+  const { user } = useAuth();
 
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    dispatch({ type: "LOGOUT" });
-    navigate("/login");
-  };
+  const handleLogout = useLogout();
 
   return (
     <div className="reader-layout">
