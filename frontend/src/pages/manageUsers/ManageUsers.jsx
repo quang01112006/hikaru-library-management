@@ -90,7 +90,7 @@ const ManageUsers = () => {
   };
 
   if (isLoading) return <Loading />;
-  if (isError) return <div className="error">Lỗi tải dữ liệu!</div>;
+  if (isError) return <div className="error">Lỗi tải dữ liệu~</div>;
 
   return (
     <div className="users-page fade-in">
